@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: k8s-mon-daemonset
+  name: k8s-mon-daemonset
+  namespace: kube-admin
+data:
+  k8s-mon.yml: |-
+
+    kubelet:
+      identify_mode: "nid" # or "pod_name"
+      addr: "https://localhost:10250/metrics/cadvisor"
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tls_config:
+        #ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+
+      metrics_white_list:
+        # cpu metrics
+        - container_spec_cpu_quota
+        - container_cpu_usage_seconds_total
+        - container_cpu_user_seconds_total
+        - container_cpu_system_seconds_total
+
+        - container_cpu_cfs_periods_total
+        - container_cpu_cfs_throttled_periods_total
+        - container_cpu_cfs_throttled_seconds_total
+
+        # mem metrics
+        - container_spec_memory_limit_bytes
+        - container_memory_working_set_bytes
+        - container_memory_usage_bytes
+        - container_memory_cache
+        - container_memory_rss
+        - container_memory_swap
+
+        # fs metrics
+        - container_fs_usage_bytes
+        - container_fs_limit_bytes
+        - container_fs_reads_bytes_total
+        - container_fs_writes_bytes_total
+
+        # network metrics
+        - container_network_receive_bytes_total
+        - container_network_receive_errors_total
+        - container_network_receive_packets_total
+        - container_network_receive_packets_dropped_total
+        - container_network_transmit_bytes_total
+        - container_network_transmit_errors_total
+        - container_network_transmit_packets_total
+        - container_network_transmit_packets_dropped_total
+
+        #  system metrics
+        - container_processes
+        - container_threads
+        - container_file_descriptors
+        - container_ulimits_soft
+        - container_sockets
+        - container_tasks_state
+      tags_white_list:
+        - pod
+        - pod_name
+        - container
+        - container_name
+        - namespace
+        - device
+        - state
+        - interface
+        - cpu
+    cadvisor:
+      addr:  "http://127.0.0.1:4194/"
+      docker_sock_file: "/var/run/docker.sock"
+
+
+    append_tags:
+    #      k1: v1
+    #      k2: v2
+
+    n9e_nid_label_name: "N9E_NID"
+    push_server_addr: "http://localhost:2080/api/collector/push"
+    collect_step: 30 # 单位秒
+    time_out_second: 5 # 单位秒
+    collect_mode: "kubelet_agent"
+    #   cadvisor_plugin 代表插件形式使用cadvisor raw api
+    #   kubelet_agent   代表agent形式采集每个node的kubelet暴露的容器指标
+    #   server_side     代表集中采集k8s服务组件: apiserver、scheduler、etcd、coredns、kube-stats-metrics

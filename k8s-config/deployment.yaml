@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-mon-deployment
+  namespace: kube-admin
+  labels:
+    app: k8s-mon-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-mon-deployment
+  template:
+    metadata:
+      labels:
+        app: k8s-mon-deployment
+        #nid: "5"
+        N9E_NID: "5"
+
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: k8s-mon
+          image: k8s-mon:v1
+          command:
+            - /opt/app/k8s-mon
+            - --config.file=/etc/k8s-mon/k8s-mon.yml
+          volumeMounts:
+            - mountPath: /etc/k8s-mon
+              name: config-volume
+          ports:
+            - containerPort: 9901
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 1000m
+              memory: 2500Mi
+      serviceAccountName: k8s-mon
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: k8s-mon-deployment
+          name: config-volume

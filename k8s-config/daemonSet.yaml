@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: k8s-mon-daemonset
+  namespace: kube-admin
+spec:
+  selector:
+    matchLabels:
+      app: k8s-mon-daemonset
+  template:
+    metadata:
+      labels:
+        app: k8s-mon-daemonset
+        #nid: "5"
+        N9E_NID: "5"
+
+    spec:
+      hostNetwork: true
+      containers:
+        - image: k8s-mon:v1
+          name: k8s-mon
+          imagePullPolicy: IfNotPresent
+          command:
+            - /opt/app/k8s-mon
+            - --config.file=/etc/k8s-mon/k8s-mon.yml
+          volumeMounts:
+            - mountPath: /etc/k8s-mon
+              name: config-volume
+            - mountPath: /var/run
+              name: docker-api
+#              readOnly: true
+      serviceAccountName: k8s-mon
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: k8s-mon-daemonset
+          name: config-volume
+        - name: docker-api
+          hostPath:
+            path: /var/run

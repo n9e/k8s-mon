@@ -1,0 +1,214 @@
+apiserver:
+  addr: "https://kubernetes.default/metrics"
+  scheme: https
+  metrics_path: metrics
+  port: 6443
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+  metrics_white_list:
+    - apiserver_client_certificate_expiration_seconds
+    - apiserver_current_inflight_requests
+    - apiserver_current_inqueue_requests
+    - apiserver_flowcontrol_current_executing_requests
+    - apiserver_flowcontrol_current_inqueue_requests
+    - apiserver_request_duration_seconds
+    - apiserver_request_total
+    - apiserver_response_sizes
+    - apiserver_tls_handshake_errors_total
+    - authentication_attempts
+    - authentication_duration_seconds
+    - etcd_db_total_size_in_bytes
+    - etcd_object_counts
+    - etcd_request_duration_seconds
+    - workqueue_adds_total
+    - workqueue_longest_running_processor_seconds
+    - workqueue_queue_duration_seconds
+    - workqueue_retries_total
+    - workqueue_work_duration_seconds
+kube_stats_metrics:
+  addr: "http://kube-state-metrics.kube-system:8080/metrics"
+  metrics_white_list:
+  tags_white_list:
+    - namespace
+    - pod
+    - pod_name
+    - container
+    - container_name
+    - reason
+    - secret
+    - condition
+    - node
+    - deployment
+    - configmap
+    - daemonset
+    - endpoint
+    - replicaset
+    - statefulset
+    - persistentvolumeclaim
+    - persistentvolume
+    - service
+    - phase
+    - type
+    - status
+    - resource
+    - unit
+    - host_ip
+    - pod_ip
+    - cluster_ip
+    - external_name
+    - load_balancer_ip
+    - storageclass
+    - kernel_version
+    - os_image
+    - role
+    - volume
+    - access_mode
+    - volumename
+    - provisioner
+    - reclaimPolicy
+    - volumeBindingMode
+    - poddisruptionbudget
+
+kube_scheduler:
+  addr: "https://localhost:10259/metrics"
+  scheme: https
+  metrics_path: metrics
+  port: 10259
+
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+  metrics_white_list:
+    - scheduler_e2e_scheduling_duration_seconds
+    - scheduler_pod_scheduling_duration_seconds
+    - scheduler_pending_pods
+    - scheduler_queue_incoming_pods_total
+    - scheduler_scheduling_algorithm_duration_seconds
+    - scheduler_pod_scheduling_attempts
+  tags_white_list:
+
+kube_controller_manager:
+  addr: "https://localhost:10257/metrics"
+  port: 10257
+  scheme: https
+  metrics_path: metrics
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+  metrics_white_list:
+    - workqueue_adds_total
+    - workqueue_depth
+    - workqueue_queue_duration_seconds
+    - rest_client_requests_total
+    - rest_client_request_duration_seconds
+
+  tags_white_list:
+
+
+coredns:
+  addr: "http://kube-dns.kube-system:9153/metrics"
+  port: 9153
+  scheme: http
+  metrics_path: metrics
+  metrics_white_list:
+    - coredns_dns_requests_total
+    - coredns_dns_responses_total
+    - coredns_cache_entries
+    - coredns_cache_hits_total
+    - coredns_cache_misses_total
+    - coredns_dns_request_duration_seconds
+    - coredns_dns_response_size_bytes
+  tags_white_list:
+
+## end of server-side-mon
+
+kubelet:
+  identify_mode: "nid" # or "pod_name"
+  addr: "https://localhost:10250/metrics/cadvisor"
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    #ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+
+  metrics_white_list:
+    # cpu metrics
+    - container_spec_cpu_quota
+    - container_cpu_usage_seconds_total
+    - container_cpu_user_seconds_total
+    - container_cpu_system_seconds_total
+
+    - container_cpu_cfs_periods_total
+    - container_cpu_cfs_throttled_periods_total
+    - container_cpu_cfs_throttled_seconds_total
+
+    # mem metrics
+    - container_spec_memory_limit_bytes
+    - container_memory_working_set_bytes
+    - container_memory_usage_bytes
+    - container_memory_cache
+    - container_memory_rss
+    - container_memory_swap
+
+    # fs metrics
+    - container_fs_usage_bytes
+    - container_fs_limit_bytes
+    - container_fs_reads_bytes_total
+    - container_fs_writes_bytes_total
+
+    # network metrics
+    - container_network_receive_bytes_total
+    - container_network_receive_errors_total
+    - container_network_receive_packets_total
+    - container_network_receive_packets_dropped_total
+    - container_network_transmit_bytes_total
+    - container_network_transmit_errors_total
+    - container_network_transmit_packets_total
+    - container_network_transmit_packets_dropped_total
+
+    #  system metrics
+    - container_processes
+    - container_threads
+    - container_file_descriptors
+    - container_ulimits_soft
+    - container_sockets
+    - container_tasks_state
+  tags_white_list:
+    - pod
+    - pod_name
+    - container
+    - container_name
+    - namespace
+    - device
+    - state
+    - interface
+    - cpu
+
+cadvisor:
+  addr:  "http://127.0.0.1:4194/"
+  identify_mode: "nid"
+  docker_sock_file: "/var/run/docker.sock"
+# 额外添加的tag
+append_tags:
+#      k1: v1
+#      k2: v2
+# 夜莺push的http接口
+push_server_addr: "http://localhost:2080/api/collector/push"
+# 夜莺nid的标签名字
+n9e_nid_label_name: "N9E_NID"
+# 多实例时区分的标签名
+multi_server_instance_unique_label: "server_addr"
+# 采集间隔
+collect_step: 30 # 单位秒
+# 获取metrics超时时间
+time_out_second: 5 # 单位秒
+# 服务组件监控nid
+server_side_nid: "6"
+# 采集模式
+collect_mode: "server_side"
+#   cadvisor_plugin 代表插件形式使用cadvisor raw api
+#   kubelet_agent   代表agent形式采集每个node的kubelet暴露的容器指标
+#   server_side     代表集中采集k8s服务组件共6个: apiserver、scheduler、controller-manager、etcd、coredns、kube-stats-metrics
