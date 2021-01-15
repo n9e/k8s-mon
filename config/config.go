@@ -79,9 +79,10 @@ func setDefaultVarAndValidate(sc *Config) error {
 			InsecureSkipVerify: true,
 		},
 	}
+
 	emptyHc := config_util.HTTPClientConfig{}
 	if sc.CollectMode == "" {
-		sc.CollectMode = "kubelet_agent"
+		return errors.New("collect_mode must given choice are [kubelet_agent|cadvisor_plugin|server_side]")
 	} else {
 		m := map[string]struct{}{
 			"kubelet_agent":   {},
@@ -95,7 +96,7 @@ func setDefaultVarAndValidate(sc *Config) error {
 
 	if sc.CollectMode == "kubelet_agent" {
 		if sc.KubeletC == nil {
-			panic("[collect_mode=kubelet_agent] kubelet config missed")
+			return errors.New("[collect_mode=kubelet_agent] kubelet config missed")
 
 		}
 		if sc.KubeletC.IdentifyMode == "" {

@@ -11,6 +11,9 @@ data:
     kubelet:
       identify_mode: "nid" # or "pod_name"
       addr: "https://localhost:10250/metrics/cadvisor"
+      scheme: https
+      metrics_path: metrics/cadvisor
+      port: 10250
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       tls_config:
         #ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt

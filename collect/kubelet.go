@@ -1,18 +1,61 @@
 package collect
 
 import (
+	"fmt"
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/n9e/k8s-mon/config"
+	"net"
 	"strings"
 	"time"
 )
+
+func getPortListenAddr(port int64) (portListenAddr string, err error) {
+	addrs, err := net.InterfaceAddrs()
+
+	if err != nil {
+		return "", err
+	}
+	for _, address := range addrs {
+		// 检查ip地址判断是否回环地址
+		ipnet, ok := address.(*net.IPNet)
+		if !ok {
+			continue
+		}
+
+		addr := ipnet.IP.To4()
+		if addr == nil {
+			continue
+		}
+		adds := addr.String()
+		addrAndPort := fmt.Sprintf("%s:%d", adds, port)
+		conn, err := net.DialTimeout("tcp", addrAndPort, time.Second*1)
+
+		if err == nil && conn != nil {
+			conn.Close()
+			portListenAddr = adds
+			break
+		}
+
+	}
+	return
+}
 
 func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
 	// 通过kubelet prometheus 接口拿到数据后做ETL
 	// 根据docker inspect 接口拿到所有容器的数据，根据podName一致找到pause 容器的label 给对应的pod数据
 	start := time.Now()
+	kubeletAddr, err := getPortListenAddr(cg.KubeletC.Port)
+	if kubeletAddr == "" {
+		level.Warn(logger).Log("msg", "getPortListenAddrEmptyKubeletAddr", "err:", err, "port", cg.KubeletC.Port)
+
+	} else {
+
+		cg.KubeletC.Addr = fmt.Sprintf("%s://%s:%d/%s", cg.KubeletC.Scheme, kubeletAddr, cg.KubeletC.Port, cg.KubeletC.MetricsPath)
+		level.Info(logger).Log("msg", "getPortListenAddrForKubeletAddr", "port", cg.KubeletC.Port, "ipaddr", kubeletAddr, "kubeletPath", cg.KubeletC.Addr)
+	}
+
 	metrics, err := CurlTlsMetricsApi(logger, funcName, cg.KubeletC, cg.AppendTags, cg.Step, cg.TimeOutSeconds)
 	if err != nil {
 		level.Error(logger).Log("msg", "CurlTlsMetricsApiResError", "err:", err)
