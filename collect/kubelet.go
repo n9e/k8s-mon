@@ -421,7 +421,7 @@ func CommonComputeFunc(dataMapMolecular map[string]float64, dataMapDenominator m
 		}
 		var utilValue float64
 		if denominatorValue == 0 {
-			utilValue = 0
+			utilValue = 0.0
 		} else {
 			utilValue = molecularValue / denominatorValue * 100
 		}
@@ -451,7 +451,7 @@ func CpuComputeFunc(dataMapContainerCpuUsage map[string]float64, metricMapContai
 		}
 		var utilValue float64
 		if quo == 0 {
-			utilValue = 0
+			utilValue = 0.0
 		} else {
 			utilValue = rateContainerCpuUsage / quo * 100000 * 100
 		}

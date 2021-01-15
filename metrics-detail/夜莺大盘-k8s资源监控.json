@@ -1,0 +1,88 @@
+[
+    {
+        "name": "k8s资源使用情况",
+        "node_path": "",
+        "tags": [
+            {
+                "name": "node指标",
+                "weight": 0,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"节点可以分配cpu核数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_node_status_allocatable_cpu_cores\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\"]},{\"tagk\":\"node\",\"tagv\":[\"=all\"]}],\"counterListCount\":2}],\"chartTypeOptions\":{\"chartType\":\"table\",\"tableType\":\"stats\",\"columnsKey\":[\"last\"],\"valueMap\":\"range\",\"mapConf\":[{}]}}",
+                        "weight": 0
+                    },
+                    {
+                        "configs": "{\"title\":\"节点可以分配内存总量(单位：字节)\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_node_status_allocatable_memory_bytes\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\"]},{\"tagk\":\"node\",\"tagv\":[\"=all\"]}],\"counterListCount\":2}],\"chartTypeOptions\":{\"chartType\":\"table\",\"tableType\":\"stats\",\"columnsKey\":[\"last\"],\"valueMap\":\"range\",\"mapConf\":[{}]}}",
+                        "weight": 1
+                    },
+                    {
+                        "configs": "{\"title\":\"节点可运行的pod总数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_node_status_capacity_pods\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\"]},{\"tagk\":\"node\",\"tagv\":[\"=all\"]}],\"counterListCount\":2}],\"chartTypeOptions\":{\"chartType\":\"pie\",\"pieType\":\"pie\",\"targetValue\":\"avg\"},\"id\":47}",
+                        "weight": 2
+                    },
+                    {
+                        "configs": "{\"title\":\"内存压力节点\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_node_status_condition\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\"]},{\"tagk\":\"condition\",\"tagv\":[\"MemoryPressure\"]},{\"tagk\":\"node\",\"tagv\":[\"=all\"]},{\"tagk\":\"status\",\"tagv\":[\"true\"]}],\"counterListCount\":2}],\"id\":50}",
+                        "weight": 3
+                    },
+                    {
+                        "configs": "{\"title\":\"网络不可用节点\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_node_status_condition\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\"]},{\"tagk\":\"condition\",\"tagv\":[\"NetworkUnavailable\"]},{\"tagk\":\"node\",\"tagv\":[\"=all\"]},{\"tagk\":\"status\",\"tagv\":[\"true\"]}],\"counterListCount\":2}],\"id\":50}",
+                        "weight": 4
+                    }
+                ]
+            },
+            {
+                "name": "pod指标",
+                "weight": 1,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"pengding 容器数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_pod_status_phase\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\",\"__nid__5__\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]},{\"tagk\":\"phase\",\"tagv\":[\"Pending\"]},{\"tagk\":\"pod\",\"tagv\":[\"=all\"]}],\"counterListCount\":27,\"aggrFunc\":\"sum\",\"aggrGroup\":[\"pod\"]}],\"chartTypeOptions\":{\"chartType\":\"singleValue\",\"targetValue\":\"avg\",\"subType\":\"normal\",\"valueMap\":\"range\",\"mapConf\":[{}]},\"id\":53}",
+                        "weight": 0
+                    },
+                    {
+                        "configs": "{\"title\":\"pengding 容器数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_pod_container_status_waiting\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\",\"__nid__5__\"]},{\"tagk\":\"container\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]},{\"tagk\":\"pod\",\"tagv\":[\"=all\"]}],\"counterListCount\":28,\"aggrFunc\":\"sum\",\"aggrGroup\":[\"pod\"]}],\"chartTypeOptions\":{\"chartType\":\"singleValue\",\"targetValue\":\"avg\",\"subType\":\"normal\",\"valueMap\":\"range\",\"mapConf\":[{}]},\"id\":53}",
+                        "weight": 1
+                    },
+                    {
+                        "configs": "{\"title\":\"pod处于waiting状态\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_pod_container_status_waiting\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\",\"__nid__5__\"]},{\"tagk\":\"container\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]},{\"tagk\":\"pod\",\"tagv\":[\"=all\"]}],\"counterListCount\":28,\"aggrFunc\":\"max\",\"aggrGroup\":[\"container\"]}],\"id\":55}",
+                        "weight": 2
+                    },
+                    {
+                        "configs": "{\"title\":\"pod处于waiting状态\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_pod_container_status_waiting_reason\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\",\"__nid__5__\"]},{\"tagk\":\"container\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]},{\"tagk\":\"pod\",\"tagv\":[\"=all\"]},{\"tagk\":\"reason\",\"tagv\":[\"=all\"]}],\"counterListCount\":196,\"aggrFunc\":\"max\",\"aggrGroup\":[\"container\",\"reason\"]}],\"id\":56}",
+                        "weight": 3
+                    },
+                    {
+                        "configs": "{\"title\":\"pod容器重启次数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_pod_container_status_restarts_total\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\",\"__nid__5__\"]},{\"tagk\":\"container\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]},{\"tagk\":\"pod\",\"tagv\":[\"=all\"]}],\"counterListCount\":28,\"aggrFunc\":\"max\",\"aggrGroup\":[\"container\",\"pod\"]}],\"id\":57}",
+                        "weight": 4
+                    }
+                ]
+            },
+            {
+                "name": "deployment指标",
+                "weight": 2,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"可用副本数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"kube_deployment_status_replicas_available\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"deployment\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]}],\"counterListCount\":1}],\"id\":58}",
+                        "weight": 0
+                    },
+                    {
+                        "configs": "{\"title\":\"不可用副本数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"kube_deployment_status_replicas_unavailable\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"deployment\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]}],\"counterListCount\":1}],\"id\":58}",
+                        "weight": 1
+                    },
+                    {
+                        "configs": "{\"title\":\"deployment期望副本数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"kube_deployment_status_replicas\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\",\"__nid__6__\"]},{\"tagk\":\"deployment\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]}],\"counterListCount\":1}],\"chartTypeOptions\":{\"chartType\":\"pie\",\"pieType\":\"pie\",\"targetValue\":\"avg\"}}",
+                        "weight": 2
+                    }
+                ]
+            },
+            {
+                "name": "daemonset指标",
+                "weight": 3,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"应该运行ds的节点数\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"kube_daemonset_status_desired_number_scheduled\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"10.178.27.152\"]},{\"tagk\":\"daemonset\",\"tagv\":[\"=all\"]},{\"tagk\":\"namespace\",\"tagv\":[\"=all\"]}],\"counterListCount\":4}]}",
+                        "weight": 0
+                    }
+                ]
+            }
+        ]
+    }
+]

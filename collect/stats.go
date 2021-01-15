@@ -49,7 +49,7 @@ func (cs *CommonCounterHis) DeltaCounter() float64 {
 	valueDelta := cs.Snap[0].Value - cs.Snap[1].Value
 	tsDelta := cs.Snap[0].Ts - cs.Snap[1].Ts
 	// 0/0==NaN
-	if valueDelta == 0 && tsDelta == 0 {
+	if tsDelta == 0 {
 		return 0.0
 	}
 

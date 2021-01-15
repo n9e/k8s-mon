@@ -1,0 +1,92 @@
+[
+    {
+        "name": "k8s控制平面大盘",
+        "node_path": "",
+        "tags": [
+            {
+                "name": "apiserver",
+                "weight": 0,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"请求qps按code分布\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"apiserver_request_total\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"code\",\"tagv\":[\"=all\"]},{\"tagk\":\"component\",\"tagv\":[\"=all\"]},{\"tagk\":\"contentType\",\"tagv\":[\"=all\"]},{\"tagk\":\"group\",\"tagv\":[\"=all\"]},{\"tagk\":\"resource\",\"tagv\":[\"=all\"]},{\"tagk\":\"scope\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]},{\"tagk\":\"subresource\",\"tagv\":[\"=all\"]},{\"tagk\":\"verb\",\"tagv\":[\"=all\"]},{\"tagk\":\"version\",\"tagv\":[\"=all\"]}],\"counterListCount\":15,\"aggrFunc\":\"sum\",\"aggrGroup\":[\"code\"]}],\"id\":29}",
+                        "weight": 0
+                    },
+                    {
+                        "configs": "{\"title\":\"请求qps按verb分布\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"apiserver_request_total\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"code\",\"tagv\":[\"=all\"]},{\"tagk\":\"component\",\"tagv\":[\"=all\"]},{\"tagk\":\"contentType\",\"tagv\":[\"=all\"]},{\"tagk\":\"group\",\"tagv\":[\"=all\"]},{\"tagk\":\"resource\",\"tagv\":[\"=all\"]},{\"tagk\":\"scope\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]},{\"tagk\":\"subresource\",\"tagv\":[\"=all\"]},{\"tagk\":\"verb\",\"tagv\":[\"=all\"]},{\"tagk\":\"version\",\"tagv\":[\"=all\"]}],\"counterListCount\":15,\"aggrFunc\":\"sum\",\"aggrGroup\":[\"verb\"]}],\"id\":29}",
+                        "weight": 1
+                    },
+                    {
+                        "configs": "{\"title\":\"认证尝试数\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"authentication_attempts\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"result\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":2,\"aggrGroup\":[]}],\"id\":29}",
+                        "weight": 2
+                    },
+                    {
+                        "configs": "{\"title\":\"tls握手失败数\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"apiserver_tls_handshake_errors_total\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":1,\"aggrGroup\":[]}],\"id\":29}",
+                        "weight": 3
+                    },
+                    {
+                        "configs": "{\"title\":\"正在处理的请求数量的高水位线\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"apiserver_current_inflight_requests\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"request_kind\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":2,\"aggrGroup\":[]}],\"id\":29}",
+                        "weight": 4
+                    },
+                    {
+                        "configs": "{\"title\":\"最近排队请求数量的高水位线\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"apiserver_current_inqueue_requests\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"request_kind\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":2,\"aggrGroup\":[]}],\"id\":29}",
+                        "weight": 5
+                    },
+                    {
+                        "configs": "{\"title\":\"wq 入队数\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"workqueue_adds_total\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"name\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":58,\"aggrGroup\":[]}],\"id\":29}",
+                        "weight": 6
+                    },
+                    {
+                        "configs": "{\"title\":\"wq retry数\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"workqueue_retries_total\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"name\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":19,\"aggrGroup\":[]}],\"id\":29}",
+                        "weight": 7
+                    },
+                    {
+                        "configs": "{\"title\":\"wq中最长运行时间\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"workqueue_longest_running_processor_seconds\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"name\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":20,\"aggrGroup\":[]}],\"id\":29}",
+                        "weight": 8
+                    }
+                ]
+            },
+            {
+                "name": "etcd",
+                "weight": 1,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"db物理文件大小\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"etcd_db_total_size_in_bytes\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"__nid__6__\"]},{\"tagk\":\"endpoint\",\"tagv\":[\"https://127.0.0.1:2379\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":1}]}",
+                        "weight": 0
+                    },
+                    {
+                        "configs": "{\"title\":\"etcd对象按种类计数\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":6,\"endpointsKey\":\"endpoints\",\"endpoints\":[],\"selectedEndpoint\":[\"=all\"],\"selectedMetric\":\"etcd_object_counts\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"__nid__6__\"]},{\"tagk\":\"resource\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":64}]}",
+                        "weight": 1
+                    }
+                ]
+            },
+            {
+                "name": "scheduler指标",
+                "weight": 2,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"调度队列pending pod数\",\"type\":\"chart\",\"now\":\"1610681549046\",\"start\":\"1610677949046\",\"end\":\"1610681549046\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"scheduler_pending_pods\",\"selectedTagkv\":[{\"tagk\":\"endpoint\",\"tagv\":[\"__nid__6__\"]},{\"tagk\":\"queue\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":3}],\"id\":41}",
+                        "weight": 0
+                    }
+                ]
+            },
+            {
+                "name": "controller-manager",
+                "weight": 3,
+                "charts": [
+                    {
+                        "configs": "{\"title\":\"工作队列新增速率\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"workqueue_adds_total\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"name\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":58}]}",
+                        "weight": 0
+                    },
+                    {
+                        "configs": "{\"title\":\"当前工作队列深度\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"workqueue_depth\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"name\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":44}]}",
+                        "weight": 1
+                    },
+                    {
+                        "configs": "{\"title\":\"kube-api请求速率\",\"type\":\"chart\",\"now\":\"1610682325050\",\"start\":\"1610678725050\",\"end\":\"1610682325050\",\"comparisonOptions\":[{\"label\":\"1小时\",\"labelEn\":\"1 hour\",\"value\":\"3600000\"},{\"label\":\"2小时\",\"labelEn\":\"2 hours\",\"value\":\"7200000\"},{\"label\":\"1天\",\"labelEn\":\"1 day\",\"value\":\"86400000\"},{\"label\":\"2天\",\"labelEn\":\"2 days\",\"value\":\"172800000\"},{\"label\":\"7天\",\"labelEn\":\"7 days\",\"value\":\"604800000\"}],\"legend\":false,\"shared\":true,\"linkVisible\":true,\"metrics\":[{\"selectedNid\":[6],\"endpointsKey\":\"nids\",\"endpoints\":[],\"selectedEndpoint\":[\"6\"],\"selectedMetric\":\"rest_client_requests_total\",\"selectedTagkv\":[{\"tagk\":\"nids\",\"tagv\":[\"6\"]},{\"tagk\":\"code\",\"tagv\":[\"=all\"]},{\"tagk\":\"host\",\"tagv\":[\"=all\"]},{\"tagk\":\"method\",\"tagv\":[\"=all\"]},{\"tagk\":\"server_addr\",\"tagv\":[\"=all\"]}],\"counterListCount\":5}]}",
+                        "weight": 2
+                    }
+                ]
+            }
+        ]
+    }
+]

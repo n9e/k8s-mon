@@ -21,11 +21,15 @@
 
 
 ## 采集内容说明
+
+- 一般来说在k8s集群汇总我们关注一下4类指标 
+
 |  指标类型  |  采集源 |  应用举例  |  部署方式 | 
 |  ----  | ----  | ---- |---| 
 | 容器基础资源指标	| kubelet 内置cadvisor |	查看容器cpu、mem等 | k8s daemonset   |  
 | k8s资源指标	| [kube-stats-metrics](https://github.com/kubernetes/kube-state-metrics) (简称ksm)|	查看pod状态、查看deployment信息等 | k8s deployment (需要提前部署ksm)   |  
 | k8s服务组件指标	|各个服务组件的metrics接口(多实例自动发现)<br> apiserver <br> kube-controller-manager <br> kube-scheduler <br> etcd <br> coredns  |	查看请求延迟/QPS等 | 和ksm同一套代码，部署在  k8s deployment   |  
+| 业务指标(暂不支持)	| pod暴露的metrics接口|	- | -  |  
 
 # 使用指南
 # 3、安装步骤
@@ -61,8 +65,9 @@ cd k8s-mon  && docker build -t k8s-mon:v1 .
 
 > pod yaml文件中传入上述 nid标签，例如：`N9E_NID`  
 
-- 举例：deployment中定义pod的 `N9E_NID`  label，假设test-server01这个容器的服务树节点nid为5
-- 后续该pod的容器的基础指标出现在nid=5的节点下
+- 举例：deployment中定义pod的 `N9E_NID`  label，假设test-server01这个模块对应的服务树节点nid为5
+- 后续该pod的容器的基础指标出现在nid=5的节点下: 如 cpu.user 
+- 后续该pod的k8s的基础指标出现在nid=5的节点下: 如 kube_deployment_status_replicas_available
 - 其余自定义标签不采集,如：`region: A` `cluster: B`
                      
 ```yaml
@@ -72,6 +77,8 @@ metadata:
   name: test-server01-deployment
   labels:
     app: test-server01
+    # 这里表示此deployment的nid为5
+    N9E_NID: "5"
 spec:
   replicas: 1
   selector:
@@ -83,12 +90,13 @@ spec:
         app: test-server01
         region: A
         cluster: B
+        # 这里表示此deployment启动的容器nid为5
         N9E_NID: "5"
 ```
 
 > 服务组件监控需要指定server_side_nid
 -  修改  `k8s-config/configMap_deployment.yaml` 将 server_side_nid: 字段改为指定的服务组件监控叶子节点的nid
-- 举例：server_side_nid: "6"
+- 举例：server_side_nid: "6"：代表6为k8s集群的服务树叶子节点，k8s控制平面的指标都会上报到这里
 
 ## setup03 可以调整的配置
 
@@ -117,6 +125,24 @@ kubectl apply -f k8s-config/kube-stats-metrics
 ```shell script
 kubectl apply -f k8s-config
 ```
+
+## setup04 观察日志，查看指标
+> 查看日志 
+```shell script
+kubectl logs -l app=k8s-mon-deployment  -n kube-admin  -f
+kubectl logs -l app=k8s-mon-daemonset  -n kube-admin  -f
+``` 
+
+## setup04 查看指标，导入大盘图
+> 即时看图查看指标 
+```shell script
+# 浏览器访问及时看图path： http://<n9e_addr>/mon/dashboard?nid=<nid>
+ 
+``` 
+> 导入大盘图 
+```shell script
+# 大盘图在 metrics-detail/夜莺大盘-xxxjson中
+``` 
 
 
 ## 注意事项
