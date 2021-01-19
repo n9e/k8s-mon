@@ -7,37 +7,10 @@ metadata:
   namespace: kube-admin
 data:
   k8s-mon.yml: |-
-    apiserver:
-      addr: "https://kubernetes.default/metrics"
-      scheme: https
-      metrics_path: metrics
-      port: 6443
-      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-      tls_config:
-        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        insecure_skip_verify: true
-      metrics_white_list:
-        - apiserver_client_certificate_expiration_seconds
-        - apiserver_current_inflight_requests
-        - apiserver_current_inqueue_requests
-        - apiserver_flowcontrol_current_executing_requests
-        - apiserver_flowcontrol_current_inqueue_requests
-        - apiserver_request_duration_seconds
-        - apiserver_request_total
-        - apiserver_response_sizes
-        - apiserver_tls_handshake_errors_total
-        - authentication_attempts
-        - authentication_duration_seconds
-        - etcd_db_total_size_in_bytes
-        - etcd_object_counts
-        - etcd_request_duration_seconds
-        - workqueue_adds_total
-        - workqueue_longest_running_processor_seconds
-        - workqueue_queue_duration_seconds
-        - workqueue_retries_total
-        - workqueue_work_duration_seconds
     kube_stats_metrics:
-      addr: "http://kube-state-metrics.kube-system:8080/metrics"
+      user_specified: true
+      addrs:
+        - "http://kube-state-metrics.kube-system:8080/metrics"
       metrics_white_list:
       tags_white_list:
         - namespace
@@ -80,8 +53,44 @@ data:
         - volumeBindingMode
         - poddisruptionbudget
 
+    apiserver:
+      concurrency_limit: 5
+      user_specified: false
+      addrs:
+        - "https://kubernetes.default/metrics"
+      scheme: https
+      metrics_path: metrics
+      port: 6443
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+      metrics_white_list:
+        - apiserver_client_certificate_expiration_seconds
+        - apiserver_current_inflight_requests
+        - apiserver_current_inqueue_requests
+        - apiserver_flowcontrol_current_executing_requests
+        - apiserver_flowcontrol_current_inqueue_requests
+        - apiserver_request_duration_seconds
+        - apiserver_request_total
+        - apiserver_response_sizes
+        - apiserver_tls_handshake_errors_total
+        - authentication_attempts
+        - authentication_duration_seconds
+        - etcd_db_total_size_in_bytes
+        - etcd_object_counts
+        - etcd_request_duration_seconds
+        - workqueue_adds_total
+        - workqueue_longest_running_processor_seconds
+        - workqueue_queue_duration_seconds
+        - workqueue_retries_total
+        - workqueue_work_duration_seconds
+
     kube_scheduler:
-      addr: "https://localhost:10259/metrics"
+      concurrency_limit: 5
+      user_specified: false
+      addrs:
+        - "https://localhost:10259/metrics"
       scheme: https
       metrics_path: metrics
       port: 10259
@@ -100,7 +109,10 @@ data:
       tags_white_list:
 
     kube_controller_manager:
-      addr: "https://localhost:10257/metrics"
+      concurrency_limit: 5
+      user_specified: false
+      addrs:
+        - "https://localhost:10257/metrics"
       port: 10257
       scheme: https
       metrics_path: metrics
@@ -117,9 +129,11 @@ data:
 
       tags_white_list:
 
-
     coredns:
-      addr: "http://kube-dns.kube-system:9153/metrics"
+      concurrency_limit: 5
+      user_specified: false
+      addrs:
+        - "http://kube-dns.kube-system:9153/metrics"
       port: 9153
       scheme: http
       metrics_path: metrics
@@ -132,10 +146,51 @@ data:
         - coredns_dns_request_duration_seconds
         - coredns_dns_response_size_bytes
       tags_white_list:
-    cadvisor:
-      addr:  "http://127.0.0.1:4194/"
-      docker_sock_file: "/var/run/docker.sock"
 
+    kubelet_node:
+      #hash_mod_num: 2
+      #hash_mod_shard: 0
+      concurrency_limit: 10
+      user_specified: false
+      addrs:
+        - "https://127.0.0.1:10250/metrics"
+      port: 10250
+      scheme: https
+      metrics_path: metrics
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+      metrics_white_list:
+        - kubelet_running_pods
+        - kubelet_running_containers
+        - volume_manager_total_volumes
+        - kubelet_node_config_error
+        - kubelet_runtime_operations_total
+        - kubelet_runtime_operations_errors_total
+        - kubelet_runtime_operations_duration_seconds
+        - storage_operation_duration_seconds
+        - kubelet_cgroup_manager_duration_seconds
+        - rest_client_requests_total
+        - rest_client_request_latency_seconds
+      tags_white_list:
+
+    kube_proxy:
+      #hash_mod_num: 2
+      #hash_mod_shard: 1
+      concurrency_limit: 10
+      user_specified: false
+      addrs:
+        - "http://127.0.0.1:10249/metrics"
+      port: 10249
+      scheme: http
+      metrics_path: metrics
+      metrics_white_list:
+        - kubeproxy_sync_proxy_rules_duration_seconds
+        - kubeproxy_network_programming_duration_seconds
+        - rest_client_requests_total
+        - rest_client_request_latency_seconds
+      tags_white_list:
 
     append_tags:
     #      k1: v1

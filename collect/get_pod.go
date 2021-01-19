@@ -4,11 +4,17 @@ import (
 	"context"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	kconfig "github.com/n9e/k8s-mon/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"time"
 )
+
+func GetServerAddrAll(logger log.Logger, dataMap *HistoryMap) {
+	GetServerAddrByGetPod(logger, dataMap)
+	GetServerAddrByGetNode(logger, dataMap)
+}
 
 func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 	start := time.Now()
@@ -34,6 +40,7 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 	kubeControllerIps := make([]string, 0)
 	apiServerIps := make([]string, 0)
 	coreDnsIps := make([]string, 0)
+	kubeProxyIps := make([]string, 0)
 	if len(pods.Items) == 0 {
 		return
 	}
@@ -70,25 +77,36 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 
 		}
 
+		if p.Labels["k8s-app"] == "kube-proxy" {
+			ip := p.Status.PodIP
+			if ip != "" {
+				kubeProxyIps = append(kubeProxyIps, p.Status.PodIP)
+			}
+
+		}
 	}
 	level.Info(logger).Log("msg", "server_pod_ips_result",
 		"num_kubeSchedulerIps", len(kubeSchedulerIps),
 		"num_kubeControllerIps", len(kubeControllerIps),
 		"num_apiServerIps", len(apiServerIps),
 		"num_coreDnsIps", len(coreDnsIps),
+		"num_kubeProxyIps", len(kubeProxyIps),
 		"time_took_seconds", time.Since(start).Seconds(),
 	)
 	if len(coreDnsIps) > 0 {
-		dataMap.Map.Store(FUNCNAME_COREDNS, coreDnsIps)
+		dataMap.Map.Store(kconfig.FUNCNAME_COREDNS, coreDnsIps)
 	}
 	if len(apiServerIps) > 0 {
-		dataMap.Map.Store(FUNCNAME_APISERVER, apiServerIps)
+		dataMap.Map.Store(kconfig.FUNCNAME_APISERVER, apiServerIps)
 	}
 	if len(kubeSchedulerIps) > 0 {
-		dataMap.Map.Store(FUNCNAME_KUBESCHEDULER, kubeSchedulerIps)
+		dataMap.Map.Store(kconfig.FUNCNAME_KUBESCHEDULER, kubeSchedulerIps)
 	}
 	if len(kubeControllerIps) > 0 {
-		dataMap.Map.Store(FUNCNAME_KUBECONTROLLER, kubeControllerIps)
+		dataMap.Map.Store(kconfig.FUNCNAME_KUBECONTROLLER, kubeControllerIps)
+	}
+	if len(kubeProxyIps) > 0 {
+		dataMap.Map.Store(kconfig.FUNCNAME_KUBEPROXY, kubeProxyIps)
 	}
 
 }

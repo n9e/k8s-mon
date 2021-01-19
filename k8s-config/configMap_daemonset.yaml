@@ -10,13 +10,15 @@ data:
 
     kubelet:
       identify_mode: "nid" # or "pod_name"
-      addr: "https://localhost:10250/metrics/cadvisor"
+      user_specified: false
+      addrs:
+        - "https://localhost:10250/metrics/cadvisor"
       scheme: https
       metrics_path: metrics/cadvisor
       port: 10250
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       tls_config:
-        #ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         insecure_skip_verify: true
 
       metrics_white_list:
@@ -71,9 +73,6 @@ data:
         - state
         - interface
         - cpu
-    cadvisor:
-      addr:  "http://127.0.0.1:4194/"
-      docker_sock_file: "/var/run/docker.sock"
 
 
     append_tags:

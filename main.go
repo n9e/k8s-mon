@@ -68,8 +68,8 @@ func main() {
 		return
 	}
 	// cadvisor 模式沿用之前的插件运行一次
-	if sConfig.CollectMode == "cadvisor_plugin" {
-		level.Info(logger).Log("collect_mode", "cadvisor_plugin", "msg", "start collecting..")
+	if sConfig.CollectMode == config.COLLECT_MODE_CADVISOR_PLUGIN {
+		level.Info(logger).Log("collect_mode", config.COLLECT_MODE_CADVISOR_PLUGIN, "msg", "start collecting..")
 		collect.CollectCadvisorM(sConfig.CadvisorC, logger)
 		return
 	}
@@ -105,16 +105,14 @@ func main() {
 		)
 	}
 
-	if sConfig.CollectMode == "kubelet_agent" {
-		// collector .
+	if sConfig.CollectMode == config.COLLECT_MODE_KUBELET_AGENT {
+		// kubelet_agent .
+		dataM := collect.NewHistoryMap()
 		g.Add(func() error {
 
-			dataM := collect.NewHistoryMap()
-
-			//err := collect.CommonCollectTicker(sConfig, ctxAll, logger, collect.DoKubeletCollect, "kubelet")
-			err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, dataM, collect.DoKubeletCollect, collect.FUNCNAME_KUBELET)
+			err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, dataM, collect.DoKubeletCollect, config.FUNCNAME_KUBELET)
 			if err != nil {
-				level.Error(logger).Log("msg", "kubelet collect-manager stopped")
+				level.Error(logger).Log("msg", "kubelet-collect-manager stopped")
 			}
 
 			return err
@@ -122,12 +120,13 @@ func main() {
 			cancelAll()
 
 		})
+
 	}
 
-	if sConfig.CollectMode == "server_side" {
+	if sConfig.CollectMode == config.COLLECT_MODE_SERVER_SIDE {
 
 		serviceIsM := collect.NewHistoryMap()
-		collect.GetServerAddrByGetPod(logger, serviceIsM)
+		collect.GetServerAddrAll(logger, serviceIsM)
 
 		// get pod
 		g.Add(func() error {
@@ -142,71 +141,115 @@ func main() {
 
 		})
 		// kube-scheduler
-		g.Add(func() error {
-			err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeSchedulerCollect, collect.FUNCNAME_KUBESCHEDULER)
-			if err != nil {
-				level.Error(logger).Log("msg", "kube-scheduler  collect-manager stopped")
-			}
+		if sConfig.KubeSchedulerC != nil {
+			g.Add(func() error {
+				err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeSchedulerCollect, config.FUNCNAME_KUBESCHEDULER)
+				if err != nil {
+					level.Error(logger).Log("msg", "kube-scheduler  collect-manager stopped")
+				}
 
-			return err
-		}, func(err error) {
-			cancelAll()
+				return err
+			}, func(err error) {
+				cancelAll()
 
-		})
+			})
+		}
 
 		// kube-controller-manager
-		g.Add(func() error {
-			err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeControllerCollect, collect.FUNCNAME_KUBECONTROLLER)
-			if err != nil {
-				level.Error(logger).Log("msg", "kube-controller-manager  collect-manager stopped")
-			}
+		if sConfig.KubeControllerC != nil {
+			g.Add(func() error {
+				err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeControllerCollect, config.FUNCNAME_KUBECONTROLLER)
+				if err != nil {
+					level.Error(logger).Log("msg", "kube-controller-manager  collect-manager stopped")
+				}
 
-			return err
-		}, func(err error) {
-			cancelAll()
+				return err
+			}, func(err error) {
+				cancelAll()
 
-		})
+			})
+		}
+
 		// coredns
-		g.Add(func() error {
-			err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeCoreDnsCollect, collect.FUNCNAME_COREDNS)
-			if err != nil {
-				level.Error(logger).Log("msg", "coredns  collect-manager stopped")
-			}
+		if sConfig.CoreDnsC != nil {
+			g.Add(func() error {
+				err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeCoreDnsCollect, config.FUNCNAME_COREDNS)
+				if err != nil {
+					level.Error(logger).Log("msg", "coredns  collect-manager stopped")
+				}
 
-			return err
-		}, func(err error) {
-			cancelAll()
+				return err
+			}, func(err error) {
+				cancelAll()
 
-		})
+			})
+		}
 
-		// api-server
-		g.Add(func() error {
+		if sConfig.ApiServerC != nil {
+			// api-server
+			g.Add(func() error {
 
-			//err := collect.CommonCollectTicker(sConfig, ctxAll, logger, collect.DoApiServerCollect, "api-server")
-			err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoApiServerCollect, collect.FUNCNAME_APISERVER)
-			if err != nil {
-				level.Error(logger).Log("msg", "api-server  collect-manager stopped")
-			}
+				//err := collect.CommonCollectTicker(sConfig, ctxAll, logger, collect.DoApiServerCollect, "api-server")
+				err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoApiServerCollect, config.FUNCNAME_APISERVER)
+				if err != nil {
+					level.Error(logger).Log("msg", "api-server  collect-manager stopped")
+				}
 
-			return err
-		}, func(err error) {
-			cancelAll()
+				return err
+			}, func(err error) {
+				cancelAll()
 
-		})
-		// kube-stats-metrics
-		g.Add(func() error {
-			// ksm指标多延迟启动
-			time.Sleep(2)
-			err := collect.CommonCollectTicker(sConfig, ctxAll, logger, collect.DoKubeStatsMetricsCollect, collect.FUNCNAME_KUBESTATSMETRICS)
-			if err != nil {
-				level.Error(logger).Log("msg", "kube-stats-metrics collect-manager stopped")
-			}
+			})
+		}
 
-			return err
-		}, func(err error) {
-			cancelAll()
+		if sConfig.KubeletNodeC != nil {
+			// kubelet-node
+			g.Add(func() error {
 
-		})
+				err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeletNodeCollect, config.FUNCNAME_KUBELET_NODE)
+				if err != nil {
+					level.Error(logger).Log("msg", "kubelet-node  collect-manager stopped")
+				}
+
+				return err
+			}, func(err error) {
+				cancelAll()
+
+			})
+		}
+
+		if sConfig.KubeProxyC != nil {
+			// kube-proxy
+			g.Add(func() error {
+
+				err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeProxyCollect, config.FUNCNAME_KUBEPROXY)
+				if err != nil {
+					level.Error(logger).Log("msg", "kube-proxy  collect-manager stopped")
+				}
+
+				return err
+			}, func(err error) {
+				cancelAll()
+
+			})
+		}
+
+		if sConfig.KubeStatsC != nil {
+			// kube-stats-metrics
+			g.Add(func() error {
+				// ksm指标多延迟启动
+				time.Sleep(2)
+				err := collect.CommonCollectTicker(sConfig, ctxAll, logger, collect.DoKubeStatsMetricsCollect, config.FUNCNAME_KUBESTATSMETRICS)
+				if err != nil {
+					level.Error(logger).Log("msg", "kube-stats-metrics collect-manager stopped")
+				}
+
+				return err
+			}, func(err error) {
+				cancelAll()
+
+			})
+		}
 
 	}
 

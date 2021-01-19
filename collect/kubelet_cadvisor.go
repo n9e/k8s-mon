@@ -18,7 +18,7 @@ func getPortListenAddr(port int64) (portListenAddr string, err error) {
 		return "", err
 	}
 	for _, address := range addrs {
-		// 检查ip地址判断是否回环地址
+
 		ipnet, ok := address.(*net.IPNet)
 		if !ok {
 			continue
@@ -26,6 +26,10 @@ func getPortListenAddr(port int64) (portListenAddr string, err error) {
 
 		addr := ipnet.IP.To4()
 		if addr == nil {
+			continue
+		}
+		// 检查ip地址判断是否回环地址
+		if ipnet.IP.IsLoopback() {
 			continue
 		}
 		adds := addr.String()
@@ -47,6 +51,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 	// 根据docker inspect 接口拿到所有容器的数据，根据podName一致找到pause 容器的label 给对应的pod数据
 	start := time.Now()
 	kubeletAddr, err := getPortListenAddr(cg.KubeletC.Port)
+
 	if kubeletAddr == "" {
 		level.Warn(logger).Log("msg", "getPortListenAddrEmptyKubeletAddr", "err:", err, "port", cg.KubeletC.Port)
 
@@ -54,6 +59,9 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 
 		cg.KubeletC.Addr = fmt.Sprintf("%s://%s:%d/%s", cg.KubeletC.Scheme, kubeletAddr, cg.KubeletC.Port, cg.KubeletC.MetricsPath)
 		level.Info(logger).Log("msg", "getPortListenAddrForKubeletAddr", "port", cg.KubeletC.Port, "ipaddr", kubeletAddr, "kubeletPath", cg.KubeletC.Addr)
+	}
+	if cg.KubeletC.Addr == "" && len(cg.KubeletC.UserSpecifyAddrs) > 0 {
+		cg.KubeletC.Addr = cg.KubeletC.UserSpecifyAddrs[0]
 	}
 
 	metrics, err := CurlTlsMetricsApi(logger, funcName, cg.KubeletC, cg.AppendTags, cg.Step, cg.TimeOutSeconds)

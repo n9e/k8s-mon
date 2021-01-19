@@ -2,6 +2,7 @@ package collect
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/go-kit/kit/log"
@@ -11,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -58,7 +60,7 @@ func GetServerAddrTicker(ctx context.Context, logger log.Logger, step int64, dat
 	for {
 		select {
 		case <-ticker.C:
-			GetServerAddrByGetPod(logger, dataMap)
+			GetServerAddrAll(logger, dataMap)
 		case <-ctx.Done():
 			level.Info(logger).Log("msg", "GetServerAddrTicker exit....")
 			return nil
@@ -74,7 +76,24 @@ func MapWhiteMetricsMap(metricsWhiteList []string) map[string]struct{} {
 	}
 	return m
 }
-func CurlMetricsByIps(cg *config.CommonApiServerConfig, logger log.Logger, dataMap *HistoryMap, funcName string, appendTags map[string]string, step int64, tw int64, multiServerInstanceUniqueLabel string) (metricList []dataobj.MetricValue) {
+
+func GetServerSideAddr(cg *config.CommonApiServerConfig, logger log.Logger, dataMap *HistoryMap, funcName string) (metricUrlMap map[string]string) {
+	metricUrlMap = make(map[string]string)
+	if cg.UserSpecified && len(cg.UserSpecifyAddrs) > 0 {
+		for _, murl := range cg.UserSpecifyAddrs {
+			u, err := url.Parse(murl)
+			if err != nil {
+				level.Error(logger).Log("msg", "GetServerSideAddrParseUrlErrorByUserSpecifyAddrs",
+					"funcName", funcName,
+					"metricUrl", murl,
+					"err", err)
+				continue
+			}
+			metricUrlMap[u.Host] = murl
+		}
+
+		return
+	}
 	obj, loaded := dataMap.Map.Load(funcName)
 	if !loaded {
 		level.Error(logger).Log("msg", "GetServerAddrByGetPodErrorNoValue", "funcName:", funcName)
@@ -86,32 +105,134 @@ func CurlMetricsByIps(cg *config.CommonApiServerConfig, logger log.Logger, dataM
 		level.Error(logger).Log("msg", "GetServerAddrByGetPodErrorEmptyAddrs", "funcName:", funcName)
 		return
 	}
+	level.Debug(logger).Log("msg", "GetServerAddrByGetPodorNode", "funcName", funcName, "num", len(ips))
+	for _, ip := range ips {
+		murl := fmt.Sprintf("%s://%s:%d/%s", cg.Scheme, ip, cg.Port, cg.MetricsPath)
+		metricUrlMap[ip] = murl
+	}
 
-	level.Info(logger).Log("msg", "GetServerAddrByGetPod", "funcName", funcName, "num", len(ips))
+	return
+}
 
-	for index, addr := range ips {
+func AsyncCurlMetricsAndPush(controlChan chan int, c *config.CommonApiServerConfig, logger log.Logger, funcName string, m map[string]string, step int64, tw int64, index int, allNum int, serverSideNid string, pushServerAddr string) {
+	start := time.Now()
+	defer func() {
+		<-controlChan
+	}()
+	metricList, err := CurlTlsMetricsApi(logger, funcName, c, m, step, tw)
+
+	if err != nil {
+		level.Error(logger).Log("msg", "CurlTlsMetricsResError", "func_name", funcName, "err:", err, "seq", fmt.Sprintf("%d/%d", index, allNum), "addr", c.Addr)
+		return
+	}
+	if len(metricList) == 0 {
+		level.Error(logger).Log("msg", "CurlTlsMetricsResEmpty", "func_name", funcName, "seq", fmt.Sprintf("%d/%d", index, allNum), "addr", c.Addr)
+		return
+	}
+	ml := make([]dataobj.MetricValue, 0)
+	for _, m := range metricList {
+
+		m.Nid = serverSideNid
+		ml = append(ml, m)
+
+	}
+	level.Info(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "seq", fmt.Sprintf("%d/%d", index, allNum), "metrics_num", len(ml), "time_took_seconds", time.Since(start).Seconds())
+	go PushWork(pushServerAddr, tw, ml, logger, funcName)
+
+}
+
+//func CurlMetricsByIps(cg *config.CommonApiServerConfig, logger log.Logger, dataMap *HistoryMap, funcName string, appendTags map[string]string, step int64, tw int64, multiServerInstanceUniqueLabel string) (metricList []dataobj.MetricValue) {
+//	metricUrlMap := GetServerSideAddr(cg, logger, dataMap, funcName)
+//	if len(metricUrlMap) == 0 {
+//		level.Error(logger).Log("msg", "GetServerSideAddrEmpty", "funcName:", funcName)
+//		return
+//	}
+//	seq := 0
+//	for uniqueHost, murl := range metricUrlMap {
+//		tmp := *cg
+//		c := &tmp
+//		c.Addr = murl
+//		// 添加service_addr tag
+//		m := map[string]string{
+//			multiServerInstanceUniqueLabel: uniqueHost,
+//		}
+//		for k, v := range appendTags {
+//			m[k] = v
+//		}
+//
+//		ms, err := CurlTlsMetricsApi(logger, funcName, c, m, step, tw)
+//
+//		if err != nil {
+//			level.Error(logger).Log("msg", "CurlTlsMetricsResError", "func_name", funcName, "err:", err, "seq", fmt.Sprintf("%d/%d", seq+1, len(metricUrlMap)), "addr", c.Addr)
+//			//return
+//		}
+//		if len(ms) == 0 {
+//			level.Error(logger).Log("msg", "CurlTlsMetricsResEmpty", "func_name", funcName, "seq", fmt.Sprintf("%d/%d", seq+1, len(metricUrlMap)), "addr", c.Addr)
+//			//return
+//		}
+//		metricList = append(metricList, ms...)
+//		seq += 1
+//	}
+//	return
+//}
+
+func sum64(hash [md5.Size]byte) uint64 {
+	var s uint64
+
+	for i, b := range hash {
+		shift := uint64((md5.Size - i - 1) * 8)
+
+		s |= uint64(b) << shift
+	}
+	return s
+}
+
+func ConcurrencyCurlMetricsByIpsSetNid(cg *config.CommonApiServerConfig, logger log.Logger, dataMap *HistoryMap, funcName string, appendTags map[string]string, step int64, tw int64, multiServerInstanceUniqueLabel string, multiFuncUniqueLabel string, serverSideNid string, pushServerAddr string) {
+	metricUrlMap := GetServerSideAddr(cg, logger, dataMap, funcName)
+	if len(metricUrlMap) == 0 {
+		level.Error(logger).Log("msg", "GetServerSideAddrEmpty", "funcName:", funcName)
+		return
+	}
+	seq := 0
+	if cg.ConcurrencyLimit == 0 {
+		cg.ConcurrencyLimit = 10
+	}
+	controlChan := make(chan int, cg.ConcurrencyLimit)
+
+	for uniqueHost, murl := range metricUrlMap {
+		if cg.HashModNum == 0 && cg.HashModShard == 0 {
+			goto collect
+		} else {
+			mod := sum64(md5.Sum([]byte(murl))) % cg.HashModNum
+			level.Debug(logger).Log("msg", "metricsHashModEnabled",
+				"funcName:", funcName,
+				"cg.HashModNum:", cg.HashModNum,
+				"cg.HashModShard:", cg.HashModShard,
+				"mod:", mod,
+			)
+
+			if mod != cg.HashModShard {
+				continue
+			}
+			goto collect
+		}
+
+	collect:
+		controlChan <- 1
+
 		tmp := *cg
 		c := &tmp
-		c.Addr = fmt.Sprintf("%s://%s:%d/%s", c.Scheme, addr, c.Port, c.MetricsPath)
+		c.Addr = murl
 		// 添加service_addr tag
 		m := map[string]string{
-			multiServerInstanceUniqueLabel: addr,
+			multiServerInstanceUniqueLabel: uniqueHost,
+			multiFuncUniqueLabel:           funcName,
 		}
 		for k, v := range appendTags {
 			m[k] = v
 		}
-
-		ms, err := CurlTlsMetricsApi(logger, funcName, c, m, step, tw)
-
-		if err != nil {
-			level.Error(logger).Log("msg", "CurlTlsMetricsResError", "func_name", funcName, "err:", err, "seq", fmt.Sprintf("%d/%d", index+1, len(ips)), "addr", c.Addr)
-			//return
-		}
-		if len(ms) == 0 {
-			level.Error(logger).Log("msg", "CurlTlsMetricsResEmpty", "func_name", funcName, "seq", fmt.Sprintf("%d/%d", index+1, len(ips)), "addr", c.Addr)
-			//return
-		}
-		metricList = append(metricList, ms...)
+		go AsyncCurlMetricsAndPush(controlChan, c, logger, funcName, m, step, tw, seq+1, len(metricUrlMap), serverSideNid, pushServerAddr)
+		seq += 1
 	}
 	return
 }

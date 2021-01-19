@@ -12,6 +12,11 @@ import (
 
 func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName string) {
 	start := time.Now()
+	if len(cg.KubeStatsC.UserSpecifyAddrs) == 0 {
+		level.Error(logger).Log("msg", "DoKubeStatsMetricsEmptyUserSpecifyAddrs")
+		return
+	}
+	cg.KubeStatsC.Addr = cg.KubeStatsC.UserSpecifyAddrs[0]
 	metrics, err := CurlTlsMetricsApi(logger, funcName, cg.KubeStatsC, cg.AppendTags, cg.Step, cg.TimeOutSeconds)
 
 	if err != nil {

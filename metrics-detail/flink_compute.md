@@ -16,6 +16,12 @@
 | coredns 解析平均延迟| coredns_dns_request_duration_seconds_sum /coredns_dns_request_duration_seconds_count || 
 | coredns 解析响应平均大小| coredns_dns_response_size_bytes_sum /coredns_dns_response_size_bytes_count || 
 | kube-controller-manager 请求apiserver平均延迟| rest_client_request_duration_seconds_sum /rest_client_request_duration_seconds_count || 
+| kube-proxy 请求apiserver平均延迟| rest_client_request_latency_seconds_sum /rest_client_request_latency_seconds_count || 
+| kube-proxy 网络规则同步平均延迟| kubeproxy_sync_proxy_rules_duration_seconds_sum /kubeproxy_sync_proxy_rules_duration_seconds_count || 
+| kube-proxy 网络处理平均延迟| kubeproxy_network_programming_duration_seconds_sum /kubeproxy_network_programming_duration_seconds_count || 
+| kubelet-node 操作处理平均延迟| kubelet_runtime_operations_duration_seconds_sum /kubelet_runtime_operations_duration_seconds_count || 
+| kubelet-node 存储操作处理平均延迟| storage_operation_duration_seconds_sum /storage_operation_duration_seconds_count || 
+| kubelet-node cg操作处理平均延迟| kubelet_cgroup_manager_duration_seconds_sum /kubelet_cgroup_manager_duration_seconds_count || 
 
 
 

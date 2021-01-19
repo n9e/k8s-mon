@@ -3,7 +3,7 @@ module github.com/n9e/k8s-mon
 go 1.15
 
 require (
-    github.com/didi/nightingale v0.0.0-20201018021739-93c35fd0ec44
+	github.com/didi/nightingale v0.0.0-20201018021739-93c35fd0ec44
 	github.com/docker/docker v20.10.2+incompatible
 	github.com/go-kit/kit v0.10.0
 	github.com/google/cadvisor v0.38.7
@@ -18,7 +18,7 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.0.3 // indirect
-	k8s.io/api v0.20.1 // indirect
+	k8s.io/api v0.20.1
 	k8s.io/apimachinery v0.20.1
 	k8s.io/client-go v0.0.0-20210106050432-9761a13537eb
 	k8s.io/klog v1.0.0 // indirect

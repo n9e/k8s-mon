@@ -1,5 +1,8 @@
 apiserver:
-  addr: "https://kubernetes.default/metrics"
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "https://kubernetes.default/metrics"
   scheme: https
   metrics_path: metrics
   port: 6443
@@ -27,8 +30,12 @@ apiserver:
     - workqueue_queue_duration_seconds
     - workqueue_retries_total
     - workqueue_work_duration_seconds
+
 kube_stats_metrics:
-  addr: "http://kube-state-metrics.kube-system:8080/metrics"
+  concurrency_limit: 10
+  user_specified: true
+  addrs:
+    - "http://kube-state-metrics.kube-system:8080/metrics"
   metrics_white_list:
   tags_white_list:
     - namespace
@@ -72,7 +79,10 @@ kube_stats_metrics:
     - poddisruptionbudget
 
 kube_scheduler:
-  addr: "https://localhost:10259/metrics"
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "https://localhost:10259/metrics"
   scheme: https
   metrics_path: metrics
   port: 10259
@@ -91,7 +101,10 @@ kube_scheduler:
   tags_white_list:
 
 kube_controller_manager:
-  addr: "https://localhost:10257/metrics"
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "https://localhost:10257/metrics"
   port: 10257
   scheme: https
   metrics_path: metrics
@@ -105,12 +118,14 @@ kube_controller_manager:
     - workqueue_queue_duration_seconds
     - rest_client_requests_total
     - rest_client_request_duration_seconds
-
   tags_white_list:
 
 
 coredns:
-  addr: "http://kube-dns.kube-system:9153/metrics"
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "http://kube-dns.kube-system:9153/metrics"
   port: 9153
   scheme: http
   metrics_path: metrics
@@ -124,6 +139,48 @@ coredns:
     - coredns_dns_response_size_bytes
   tags_white_list:
 
+kube_proxy:
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "http://127.0.0.1:10249/metrics"
+  port: 10249
+  scheme: http
+  metrics_path: metrics
+  metrics_white_list:
+    - kubeproxy_sync_proxy_rules_duration_seconds
+    - kubeproxy_network_programming_duration_seconds
+    - rest_client_requests_total
+    - rest_client_request_latency_seconds
+  tags_white_list:
+
+kubelet_node:
+  #hash_mod_num: 2
+  #hash_mod_shard: 1
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "https://127.0.0.1:10250/metrics"
+  port: 10250
+  scheme: https
+  metrics_path: metrics
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+  metrics_white_list:
+    - kubelet_running_pods
+    - kubelet_running_containers
+    - volume_manager_total_volumes
+    - kubelet_node_config_error
+    - kubelet_runtime_operations_total
+    - kubelet_runtime_operations_errors_total
+    - kubelet_runtime_operations_duration_seconds
+    - storage_operation_duration_seconds
+    - kubelet_cgroup_manager_duration_seconds
+    - rest_client_requests_total
+    - rest_client_request_latency_seconds
+  tags_white_list:
 ## end of server-side-mon
 
 kubelet:
@@ -208,7 +265,7 @@ time_out_second: 5 # 单位秒
 # 服务组件监控nid
 server_side_nid: "6"
 # 采集模式
-collect_mode: "server_side"
+collect_mode: "kubelet_agent"
 #   cadvisor_plugin 代表插件形式使用cadvisor raw api
 #   kubelet_agent   代表agent形式采集每个node的kubelet暴露的容器指标
 #   server_side     代表集中采集k8s服务组件共6个: apiserver、scheduler、controller-manager、etcd、coredns、kube-stats-metrics

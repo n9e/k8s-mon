@@ -1,10 +1,11 @@
 # 模式说明
-
+- 对应配置项为collect_mode **cadvisor_plugin|kubelet_agent|server_side 三选一**
+- 代码为同一套代码
 
 |  模式名称  |  部署运行方式 |  collect_mode配置   |  说明 | 
 |  ----  | ----  | ---- |---| 
 | 夜莺插件形式采集cadvisor raw api	| 可执行的插件由夜莺agent调用|	cadvisor_plugin | 文档在readme最下面 (原有cadvisor采集模式) |  
-| 容器基础资源指标采集	|  k8s daemonset 部署在每一个node上|	kubelet_agent | 统称为新模式   |  
+| 容器基础资源指标采集	|  k8s daemonset 部署在每一个node上|	kubelet_agent | 统称为新模式  (kubelet地址由对应metrics port listen地址决定) |  
 | 集中采集k8s服务组件	|k8s deployment 部署 |	server_side | 统称为新模式  |  
 
 
@@ -18,7 +19,8 @@
 - 指标说明在`metrcs-detail`文件夹里
 - k8s yaml配置在 `k8s-config`中
 - 服务组件监控时多实例问题：用户无需关心，k8s-mon自动发现并采集 
-
+- 采集每node上的`kube-proxy` `kubelet-node`指标时支持并发数配置和静态分片
+- 服务组件采集时会添加`func_name`标签作为区分具体组件任务，类似`prometheus`的`job`标签 
 
 ## 采集内容说明
 
@@ -28,8 +30,23 @@
 |  ----  | ----  | ---- |---| 
 | 容器基础资源指标	| kubelet 内置cadvisor |	查看容器cpu、mem等 | k8s daemonset   |  
 | k8s资源指标	| [kube-stats-metrics](https://github.com/kubernetes/kube-state-metrics) (简称ksm)|	查看pod状态、查看deployment信息等 | k8s deployment (需要提前部署ksm)   |  
-| k8s服务组件指标	|各个服务组件的metrics接口(多实例自动发现)<br> apiserver <br> kube-controller-manager <br> kube-scheduler <br> etcd <br> coredns  |	查看请求延迟/QPS等 | 和ksm同一套代码，部署在  k8s deployment   |  
+| k8s服务组件指标	|各个服务组件的metrics接口(多实例自动发现)<br> apiserver <br> kube-controller-manager <br> kube-scheduler <br> etcd <br> coredns <br> kube-proxy <br> kubelet-node |	查看请求延迟/QPS等 | 和ksm同一套代码，部署在  k8s deployment   |  
 | 业务指标(暂不支持)	| pod暴露的metrics接口|	- | -  |  
+
+## 采集地址配置/发现说明
+- 每种项目配置了相关配置段才会开启，如果不想采集某类指标可以去掉其配置
+- 每种项目由 `user_specified` 配置是否采用用户指定的地址，用来处理有些服务组件以裸进程形式部署无法从内部发现的case
+- 当`user_specified：true`时，对应的`addrs`为采集地址url列表
+- 当`user_specified：false`时，则认为由内置的代码来进行动态发现，需要配置好对应的`port` `schema` `metrics_path`等信息
+
+|  采集类型  |  采集地址说明 |  配置/发现说明  | 
+|  ----  | ----  | ---- |
+| 容器基础资源指标 kubelet-cadvisor	| kubelet 在node上listen分两种情况:<br>  listen 0.0.0.0 <br> listen机器内网ip |	默认为`k8s-mon`自动根据配置的`port`找到对应的地址 |
+| k8s资源指标	kube-stats-metrics| 默认为通过coredns 访问service `http://kube-state-metrics.kube-system:8080/metrics` | 同时支持指定  |
+| k8s服务组件指标(master侧) <br> apiserver <br> kube-controller-manager <br> kube-scheduler <br> etcd <br> coredns   <br>| 需要注意这些组件的部署方式 : <br> 部署在pod 中 <br> 以裸进程部署 |	`k8s-mon`默认认这些组件部署在pod中，通过getpod获取地址列表  |  
+| k8s服务组件指标(每node部署) kube-proxy <br> kubelet-node | 需要注意这些组件的部署方式 : <br> 部署在pod 中 <br> 以裸进程部署 |	`k8s-mon`默认认这些组件在每个node都可以以`ip:port/metrics`访问到，通过getnode获取internal ip ，对应的服务需要listen 内网ip或`0.0.0.0`|  
+| 业务指标(暂不支持)	| pod暴露的metrics接口|	- | -  |
+
 
 # 使用指南
 # 3、安装步骤
@@ -99,6 +116,51 @@ spec:
 - 举例：server_side_nid: "6"：代表6为k8s集群的服务树叶子节点，k8s控制平面的指标都会上报到这里
 
 ## setup03 可以调整的配置
+> 如果不想采集某类指标可以去掉其配置
+- 举例：不想采集`apiserver`的指标
+- 则去掉/注释掉 `k8s-config/configMap_deployment.yaml`中 `apiserver`段即可
+- deployment中需要采集每node的`kube-proxy` 和`kubelet` (node量大的时候)不需要可以去掉
+
+> 每node的`kube-proxy` 和`kubelet`静态分片采集
+- 默认采集所有node的指标，在node数量大时会导致性能问题，则需要开启分片采集
+- 举例有1万个node需要采集kube-proxy，则部署3个k8s-mon，配置值开启kube-proxy段
+- 其中`hash_mod_num`代表总分片数量 `hash_mod_shard`代表本实例取模后的index(取值范围是0 ~ hash_mod_num-1)
+- 那么这三个实例则会将1万个node分片采集
+
+```yaml
+# 实例1
+kube_proxy:
+  hash_mod_num: 3
+  hash_mod_shard: 0
+```
+
+```yaml
+# 实例2
+kube_proxy:
+  hash_mod_num: 3
+  hash_mod_shard: 1
+```
+
+```yaml
+# 实例3
+kube_proxy:
+  hash_mod_num: 3
+  hash_mod_shard: 2
+```
+
+
+> 想给某个采集项指定采集地址
+- 举例：想设置kube-scheduler的采集地址为 `https://1.1.1.1:1234/metrics` 和 `https://2.2.2.2:1234/metrics` 
+- 则修改`k8s-config/configMap_deployment.yaml`中 `user_specified` 和`addrs`即可
+```yaml
+kube_scheduler:
+  user_specified: true
+  addrs:
+    - "https://1.1.1.1:1234/metrics"
+    - "https://2.2.2.2:1234/metrics"
+```
+
+
 
 > 如需给采集的指标添加自定义tag 
 - 则修改 `k8s-config/configMap_deployment.yaml` `k8s-config/configMap_daemonset.yaml`中的`append_tags`字段即可
@@ -110,6 +172,11 @@ append_tags:
 
 > 如需修改采集间隔
 - 修改`k8s-config/configMap_deployment.yaml` `k8s-config/configMap_daemonset.yaml`中的 `collect_step` 字段
+
+> 如需修改某个项目的采集并发
+- 修改`k8s-config/configMap_deployment.yaml` 中的指定项目的 `concurrency_limit` 字段，默认10
+
+
 
 > 如需服务组件采集多实例时的特征标签
 - 修改`k8s-config/configMap_deployment.yaml` 中的 `multi_server_instance_unique_label` 字段
