@@ -12,7 +12,7 @@ import (
 func DoKubeletNodeOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
 
 	start := time.Now()
-	kubeletNodeAddr, err := getPortListenAddr(cg.KubeletNodeC.Port)
+	kubeletNodeAddr, err := GetPortListenAddr(cg.KubeletNodeC.Port)
 
 	if kubeletNodeAddr == "" {
 		level.Warn(logger).Log("msg", "getPortListenAddrEmptykubeletNodeAddr", "funcName", funcName, "err:", err, "port", cg.KubeletNodeC.Port)

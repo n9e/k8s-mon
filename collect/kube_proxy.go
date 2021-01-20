@@ -12,7 +12,7 @@ import (
 func DoKubeProxyOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
 
 	start := time.Now()
-	kubeproxyAddr, err := getPortListenAddr(cg.KubeProxyC.Port)
+	kubeproxyAddr, err := GetPortListenAddr(cg.KubeProxyC.Port)
 
 	if kubeproxyAddr == "" {
 		level.Warn(logger).Log("msg", "getPortListenAddrEmptykubeProxyAddr", "funcName", funcName, "err:", err, "port", cg.KubeProxyC.Port)

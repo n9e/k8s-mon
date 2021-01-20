@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/n9e/k8s-mon/collect"
@@ -109,8 +110,17 @@ func main() {
 		// kubelet_agent .
 		dataM := collect.NewHistoryMap()
 		g.Add(func() error {
+			kubeletAddr, err := collect.GetPortListenAddr(sConfig.KubeletC.Port)
+			if kubeletAddr == "" {
+				level.Warn(logger).Log("msg", "getPortListenAddrEmptyKubeletAddr", "err:", err, "port", sConfig.KubeletC.Port)
 
-			err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, dataM, collect.DoKubeletCollect, config.FUNCNAME_KUBELET)
+			} else {
+
+				sConfig.KubeletC.Addr = fmt.Sprintf("%s://%s:%d/%s", sConfig.KubeletC.Scheme, kubeletAddr, sConfig.KubeletC.Port, sConfig.KubeletC.MetricsPath)
+				level.Info(logger).Log("msg", "getPortListenAddrForKubeletAddr", "port", sConfig.KubeletC.Port, "ipaddr", kubeletAddr, "kubeletPath", sConfig.KubeletC.Addr)
+			}
+
+			err = collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, dataM, collect.DoKubeletCollect, config.FUNCNAME_KUBELET)
 			if err != nil {
 				level.Error(logger).Log("msg", "kubelet-collect-manager stopped")
 			}
