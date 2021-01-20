@@ -12,7 +12,7 @@ func getLabelMapByDockerSdk(nidLabelName string) (map[string]map[string]string, 
 	if err != nil {
 		return nil, err
 	}
-
+	defer cli.Close()
 	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		return nil, err
