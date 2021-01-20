@@ -16,7 +16,7 @@
 - 各个采集项目有metirc和tag的白名单过滤
 - `cadvisor`数据需要hold点做计算比率类指标，多用在百分比的情况，其余不需要
 - `counter`类型将有夜莺agent转换为`gauge`型，即数值已经转为`rate`了
-- 指标说明在`metrcs-detail`文件夹里
+- 指标说明在`metrics-detail`文件夹里
 - k8s yaml配置在 `k8s-config`中
 - 服务组件监控时多实例问题：用户无需关心，k8s-mon自动发现并采集 
 - 采集每node上的`kube-proxy` `kubelet-node`指标时支持并发数配置和静态分片
@@ -217,6 +217,7 @@ kubectl logs -l app=k8s-mon-daemonset  -n kube-admin  -f
 - kubelet 内置了cadvisor作为容器采集 ，具体文档可以看这里 [cadvisor housekeeping配置](https://github.com/google/cadvisor/blob/master/docs/runtime_options.md#housekeeping)
 - 同时kubelet 命令行透传了[相关配置](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/)
 - ```--housekeeping-interval duration     Default: `10s` ``` 模式采集是10秒，所以在`默认配置`下无论prometheus还是k8s-mon采集间隔不应低于10s
+- **cpu 和mem指标需要pod设置limit，如果没有limit则某些指标会缺失**
 
 ### 白名单问题
 - 建议保持默认的metrics名单，metrics_white_list为空则全采集
@@ -225,7 +226,6 @@ kubectl logs -l app=k8s-mon-daemonset  -n kube-admin  -f
 ### histogram数据问题
 - 暂时不提供基于 histogram的分位值，所以所有的_bucket指标已经被过滤掉了
 - 取而代之的是提供平均值，即： xx_sum/xx_count 举例 ` etcd请求平均延迟 = etcd_request_duration_seconds_sum /etcd_request_duration_seconds_count `
-
 
 
 # 原有cadvisor采集模式，即配置文件中collect_mode : cadvisor_plugin

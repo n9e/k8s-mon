@@ -1,4 +1,6 @@
 ## cadvisor指标说明
+### **cpu 和mem指标需要pod设置limit，如果没有limit则某些指标会缺失**
+
 ### cpu指标
 |  夜莺指标名   |含义| prometheus metrics或计算方式|说明 |
 |  ----  | ----  | ---- | --- |
@@ -39,7 +41,7 @@
 | disk.io.write.bytes | 容器io.write qps| rate(container_fs_write_bytes_total)[1m] | (单位：bps) |
 
 ### network指标
-#### **网卡指标都应该求和计算**
+#### **网卡指标都应该求所有interface的和计算**
  
 |  夜莺指标名   |含义| prometheus metrics或计算方式|说明 |
 |  ----  | ----  | ---- | --- |

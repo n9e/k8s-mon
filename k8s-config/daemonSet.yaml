@@ -28,7 +28,15 @@ spec:
               name: config-volume
             - mountPath: /var/run
               name: docker-api
-#              readOnly: true
+              # 赋予write权限，因为service account需要
+              #readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 1000m
+              memory: 2500Mi
       serviceAccountName: k8s-mon
       volumes:
         - configMap:
