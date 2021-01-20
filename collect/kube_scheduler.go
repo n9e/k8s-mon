@@ -2,6 +2,7 @@ package collect
 
 import (
 	"github.com/go-kit/kit/log"
+
 	"github.com/n9e/k8s-mon/config"
 )
 

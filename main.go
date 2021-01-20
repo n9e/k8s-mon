@@ -3,21 +3,22 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	"github.com/n9e/k8s-mon/collect"
-	"github.com/prometheus/common/promlog"
-	promlogflag "github.com/prometheus/common/promlog/flag"
-	"github.com/prometheus/common/version"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
 	"time"
 
-	"github.com/n9e/k8s-mon/config"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/oklog/run"
+	"github.com/prometheus/common/promlog"
+	promlogflag "github.com/prometheus/common/promlog/flag"
+	"github.com/prometheus/common/version"
+	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/n9e/k8s-mon/collect"
+	"github.com/n9e/k8s-mon/config"
 )
 
 func main() {
@@ -110,12 +111,15 @@ func main() {
 		// kubelet_agent .
 		dataM := collect.NewHistoryMap()
 		g.Add(func() error {
+			hostname := collect.GetHostName(logger)
+			sConfig.KubeletC.HostName = hostname
+
 			kubeletAddr, err := collect.GetPortListenAddr(sConfig.KubeletC.Port)
 			if kubeletAddr == "" {
 				level.Warn(logger).Log("msg", "getPortListenAddrEmptyKubeletAddr", "err:", err, "port", sConfig.KubeletC.Port)
 
 			} else {
-
+				sConfig.KubeletC.HostIp = kubeletAddr
 				sConfig.KubeletC.Addr = fmt.Sprintf("%s://%s:%d/%s", sConfig.KubeletC.Scheme, kubeletAddr, sConfig.KubeletC.Port, sConfig.KubeletC.MetricsPath)
 				level.Info(logger).Log("msg", "getPortListenAddrForKubeletAddr", "port", sConfig.KubeletC.Port, "ipaddr", kubeletAddr, "kubeletPath", sConfig.KubeletC.Addr)
 			}

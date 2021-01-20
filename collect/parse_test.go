@@ -2,11 +2,12 @@ package collect
 
 import (
 	"encoding/json"
-	"github.com/prometheus/common/promlog"
 	"io/ioutil"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/prometheus/common/promlog"
 )
 
 func TestParseInfValue(t *testing.T) {

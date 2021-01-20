@@ -2,11 +2,13 @@ package collect
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+
 	"github.com/n9e/k8s-mon/config"
-	"time"
 )
 
 func DoKubeletNodeOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {

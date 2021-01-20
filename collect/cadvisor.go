@@ -3,9 +3,6 @@ package collect
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	"github.com/spf13/viper"
 	"net"
 	"net/http"
 	"path"
@@ -15,8 +12,11 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/google/cadvisor/client"
 	v1 "github.com/google/cadvisor/info/v1"
+	"github.com/spf13/viper"
 	"github.com/toolkits/pkg/file"
 	"github.com/toolkits/pkg/logger"
 

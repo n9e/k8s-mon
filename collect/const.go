@@ -1,3 +1,0 @@
-package collect
-
-const ()

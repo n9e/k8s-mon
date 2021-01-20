@@ -1,66 +1,20 @@
 package collect
 
 import (
-	"fmt"
+	"strings"
+	"time"
+
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+
 	"github.com/n9e/k8s-mon/config"
-	"net"
-	"strings"
-	"time"
 )
-
-func GetPortListenAddr(port int64) (portListenAddr string, err error) {
-	addrs, err := net.InterfaceAddrs()
-
-	if err != nil {
-		return "", err
-	}
-	for _, address := range addrs {
-
-		ipnet, ok := address.(*net.IPNet)
-		if !ok {
-			continue
-		}
-
-		addr := ipnet.IP.To4()
-		if addr == nil {
-			continue
-		}
-		// 检查ip地址判断是否回环地址
-		if ipnet.IP.IsLoopback() {
-			continue
-		}
-		adds := addr.String()
-		addrAndPort := fmt.Sprintf("%s:%d", adds, port)
-		conn, err := net.DialTimeout("tcp", addrAndPort, time.Second*1)
-
-		if err != nil {
-			continue
-		}
-		conn.Close()
-		portListenAddr = adds
-		break
-
-	}
-	return
-}
 
 func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
 	// 通过kubelet prometheus 接口拿到数据后做ETL
 	// 根据docker inspect 接口拿到所有容器的数据，根据podName一致找到pause 容器的label 给对应的pod数据
 	start := time.Now()
-	//kubeletAddr, err := GetPortListenAddr(cg.KubeletC.Port)
-	//
-	//if kubeletAddr == "" {
-	//	level.Warn(logger).Log("msg", "getPortListenAddrEmptyKubeletAddr", "err:", err, "port", cg.KubeletC.Port)
-	//
-	//} else {
-	//
-	//	cg.KubeletC.Addr = fmt.Sprintf("%s://%s:%d/%s", cg.KubeletC.Scheme, kubeletAddr, cg.KubeletC.Port, cg.KubeletC.MetricsPath)
-	//	level.Info(logger).Log("msg", "getPortListenAddrForKubeletAddr", "port", cg.KubeletC.Port, "ipaddr", kubeletAddr, "kubeletPath", cg.KubeletC.Addr)
-	//}
 	if cg.KubeletC.Addr == "" && len(cg.KubeletC.UserSpecifyAddrs) > 0 {
 		cg.KubeletC.Addr = cg.KubeletC.UserSpecifyAddrs[0]
 	}
@@ -206,6 +160,13 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 			if _, loaded := tagWhiteM[k]; !loaded {
 				delete(metric.TagsMap, k)
 			}
+		}
+		// 添加个node_ip label
+		if cg.KubeletC.HostIp != "" {
+			metric.TagsMap["node_ip"] = cg.KubeletC.HostIp
+		}
+		if cg.KubeletC.HostName != "" {
+			metric.TagsMap["node_name"] = cg.KubeletC.HostName
 		}
 
 		// tags string

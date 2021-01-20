@@ -4,17 +4,66 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"time"
+
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/n9e/k8s-mon/config"
 	config_util "github.com/prometheus/common/config"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"time"
+
+	"github.com/n9e/k8s-mon/config"
 )
+
+func GetHostName(logger log.Logger) string {
+	name, err := os.Hostname()
+	if err != nil {
+		level.Error(logger).Log("msg", "GetHostNameError", "err", err)
+	}
+	return name
+
+}
+
+func GetPortListenAddr(port int64) (portListenAddr string, err error) {
+	addrs, err := net.InterfaceAddrs()
+
+	if err != nil {
+		return "", err
+	}
+	for _, address := range addrs {
+
+		ipnet, ok := address.(*net.IPNet)
+		if !ok {
+			continue
+		}
+
+		addr := ipnet.IP.To4()
+		if addr == nil {
+			continue
+		}
+		// 检查ip地址判断是否回环地址
+		if ipnet.IP.IsLoopback() {
+			continue
+		}
+		adds := addr.String()
+		addrAndPort := fmt.Sprintf("%s:%d", adds, port)
+		conn, err := net.DialTimeout("tcp", addrAndPort, time.Second*1)
+
+		if err != nil {
+			continue
+		}
+		conn.Close()
+		portListenAddr = adds
+		break
+
+	}
+	return
+}
 
 func CommonCollectTickerForWithDataM(cg *config.Config, ctx context.Context, logger log.Logger, dataMap *HistoryMap, collectFunc func(*config.Config, log.Logger, *HistoryMap, string), funcName string) error {
 	ticker := time.NewTicker(time.Second * (time.Duration(cg.Step)))

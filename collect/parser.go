@@ -5,17 +5,16 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/go-kit/kit/log"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/didi/nightingale/src/common/dataobj"
+	"github.com/go-kit/kit/log"
+	fmodel "github.com/open-falcon/falcon-plus/common/model"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
-
-	fmodel "github.com/open-falcon/falcon-plus/common/model"
 )
 
 func valueConv(valueUntyped interface{}) (error, float64) {

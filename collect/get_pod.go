@@ -2,13 +2,15 @@ package collect
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	kconfig "github.com/n9e/k8s-mon/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"time"
+
+	kconfig "github.com/n9e/k8s-mon/config"
 )
 
 func GetServerAddrAll(logger log.Logger, dataMap *HistoryMap) {

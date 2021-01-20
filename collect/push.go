@@ -3,12 +3,13 @@ package collect
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/didi/nightingale/src/common/dataobj"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/didi/nightingale/src/common/dataobj"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 )
 
 func PushWork(url string, tt int64, metricList []dataobj.MetricValue, logger log.Logger, funcName string) {

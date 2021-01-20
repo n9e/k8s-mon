@@ -2,12 +2,14 @@ package collect
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/didi/nightingale/src/common/dataobj"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+
 	"github.com/n9e/k8s-mon/config"
-	"strings"
-	"time"
 )
 
 func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName string) {
@@ -160,6 +162,10 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 			if nid, loaded := nidM[kk]; loaded {
 				metric.Nid = nid
 			}
+			if metric.Nid == "" {
+				metric.Nid = cg.ServerSideNid
+			}
+
 			if _, loaded := tagWhiteM[k]; !loaded {
 				delete(metric.TagsMap, k)
 			}

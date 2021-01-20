@@ -3,13 +3,14 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/url"
+
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	config_util "github.com/prometheus/common/config"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"net/url"
 )
 
 type Config struct {
@@ -34,6 +35,8 @@ type Config struct {
 }
 
 type CommonApiServerConfig struct {
+	HostName         string                       `yaml:"-"`
+	HostIp           string                       `yaml:"-"`
 	HashModNum       uint64                       `yaml:"hash_mod_num"`
 	HashModShard     uint64                       `yaml:"hash_mod_shard"`
 	ConcurrencyLimit int64                        `yaml:"concurrency_limit"`
