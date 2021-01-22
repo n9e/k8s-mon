@@ -180,6 +180,9 @@ func AsyncCurlMetricsAndPush(controlChan chan int, c *config.CommonApiServerConf
 	}
 	ml := make([]dataobj.MetricValue, 0)
 	for _, m := range metricList {
+		if m.CounterType == config.METRIC_TYPE_COUNTER {
+			m.Metric = m.Metric + config.COUNTER_TO_GAUGE_METRIC_NAME_SUFFIX
+		}
 
 		m.Nid = serverSideNid
 		ml = append(ml, m)

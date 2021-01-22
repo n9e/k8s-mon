@@ -443,7 +443,7 @@ func delta(now, last uint64) float64 {
 }
 
 func toDockerMetric(name, nid, endpoint string, value interface{}, tags map[string]string) Metric {
-	ret := Metric{Nid: nid, Metric: name, ValueUntyped: value, TagsMap: map[string]string{}, Step: int64(viper.GetInt("g_step")), Timestamp: now, CounterType: config.GAUGE}
+	ret := Metric{Nid: nid, Metric: name, ValueUntyped: value, TagsMap: map[string]string{}, Step: int64(viper.GetInt("g_step")), Timestamp: now, CounterType: config.METRIC_TYPE_GAUGE}
 	for k, v := range tags {
 		ret.TagsMap[k] = v
 	}

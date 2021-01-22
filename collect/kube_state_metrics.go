@@ -171,7 +171,11 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 			}
 		}
 
+		if metric.CounterType == config.METRIC_TYPE_COUNTER {
+			metric.Metric = metric.Metric + config.COUNTER_TO_GAUGE_METRIC_NAME_SUFFIX
+		}
 		// tags string
+
 		metric.Tags = makeAppendTags(metric.TagsMap, cg.AppendTags)
 		metric.Step = cg.Step
 		metricList = append(metricList, metric)

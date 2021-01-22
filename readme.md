@@ -15,12 +15,14 @@
 - 通过抓取各个组件的/metrics接口获得prometheus的数据，ETL后push到夜莺
 - 各个采集项目有metirc和tag的白名单过滤
 - `cadvisor`数据需要hold点做计算比率类指标，多用在百分比的情况，其余不需要
-- `counter`类型将有夜莺agent转换为`gauge`型，即数值已经转为`rate`了
+- `counter`类型将有夜莺agent转换为`gauge`型，即数值已经转为`rate`了 ,**所有`counter`类型metric_name 加`_rate`后缀**
 - 指标说明在`metrics-detail`文件夹里
 - k8s yaml配置在 `k8s-config`中
 - 服务组件监控时多实例问题：用户无需关心，k8s-mon自动发现并采集 
 - 采集每node上的`kube-proxy` `kubelet-node`指标时支持并发数配置和静态分片
 - 服务组件采集时会添加`func_name`标签作为区分具体组件任务，类似`prometheus`的`job`标签 
+- 基础指标添加`node_ip` ,`node_name`作为宿主机标识标签
+- ksm指标没有nid的默认上报到服务节点`server_side_nid` ，例如`kube_node_status_allocatable_cpu_cores`这种共享指标
 
 ## 采集内容说明
 
@@ -193,14 +195,14 @@ kubectl apply -f k8s-config/kube-stats-metrics
 kubectl apply -f k8s-config
 ```
 
-## setup04 观察日志，查看指标
+## setup05 观察日志，查看指标
 > 查看日志 
 ```shell script
 kubectl logs -l app=k8s-mon-deployment  -n kube-admin  -f
 kubectl logs -l app=k8s-mon-daemonset  -n kube-admin  -f
 ``` 
 
-## setup04 查看指标，导入大盘图
+## setup06 查看指标，导入大盘图
 > 即时看图查看指标 
 ```shell script
 # 浏览器访问及时看图path： http://<n9e_addr>/mon/dashboard?nid=<nid>
