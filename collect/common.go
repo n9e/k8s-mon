@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/didi/nightingale/src/common/dataobj"
@@ -19,6 +22,229 @@ import (
 
 	"github.com/n9e/k8s-mon/config"
 )
+
+type bucket struct {
+	upperBound float64
+	count      float64
+}
+
+type buckets []bucket
+
+func (b buckets) Len() int           { return len(b) }
+func (b buckets) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+func (b buckets) Less(i, j int) bool { return b[i].upperBound < b[j].upperBound }
+
+func ensureMonotonic(buckets buckets) {
+	max := buckets[0].count
+	for i := 1; i < len(buckets); i++ {
+		switch {
+		case buckets[i].count > max:
+			max = buckets[i].count
+		case buckets[i].count < max:
+			buckets[i].count = max
+		}
+	}
+}
+
+func coalesceBuckets(buckets buckets) buckets {
+	last := buckets[0]
+	i := 0
+	for _, b := range buckets[1:] {
+		if b.upperBound == last.upperBound {
+			last.count += b.count
+		} else {
+			buckets[i] = last
+			last = b
+			i++
+		}
+	}
+	buckets[i] = last
+	return buckets[:i+1]
+}
+
+func bucketQuantile(q float64, buckets buckets) float64 {
+	if q < 0 {
+		return math.Inf(-1)
+	}
+	if q > 1 {
+		return math.Inf(+1)
+	}
+	if len(buckets) < 1 {
+		return math.NaN()
+	}
+	sort.Sort(buckets)
+
+	if !math.IsInf(buckets[len(buckets)-1].upperBound, +1) {
+		return math.NaN()
+	}
+
+	buckets = coalesceBuckets(buckets)
+	ensureMonotonic(buckets)
+
+	if len(buckets) < 2 {
+		return math.NaN()
+	}
+	observations := buckets[len(buckets)-1].count
+	if observations == 0 {
+		return math.NaN()
+	}
+	rank := q * observations
+	b := sort.Search(len(buckets)-1, func(i int) bool { return buckets[i].count >= rank })
+
+	if b == len(buckets)-1 {
+		return buckets[len(buckets)-2].upperBound
+	}
+	if b == 0 && buckets[0].upperBound <= 0 {
+		return buckets[0].upperBound
+	}
+	var (
+		bucketStart float64
+		bucketEnd   = buckets[b].upperBound
+		count       = buckets[b].count
+	)
+	if b > 0 {
+		bucketStart = buckets[b-1].upperBound
+		count -= buckets[b-1].count
+		rank -= buckets[b-1].count
+	}
+	return bucketStart + (bucketEnd-bucketStart)*(rank/count)
+}
+
+func checkFloatValidate(qu float64) (isValidate bool) {
+	return math.IsNaN(qu) || math.IsInf(qu, 1) || math.IsInf(qu, 1)
+}
+
+func avgCompute(m map[string]float64, nid string, metricName string, step int64, appendTags map[string]string) (metricList []dataobj.MetricValue) {
+	sum := m["sum"]
+	count := m["count"]
+	var avg float64
+	if count == 0 {
+		avg = 0
+	} else {
+		avg = sum / count
+	}
+	metric := dataobj.MetricValue{}
+	metric.Nid = nid
+	metric.Metric = metricName + "_avg"
+	metric.Timestamp = time.Now().Unix()
+	metric.Step = step
+	metric.CounterType = config.METRIC_TYPE_GAUGE
+	metric.ValueUntyped = avg
+	metric.Value = avg
+	metric.TagsMap = appendTags
+	metricList = append(metricList, metric)
+	return
+}
+
+func histogramDeltaWork(dataMap *HistoryMap, bucketM map[float64]float64, newtagsm map[string]string, funcName string, newMetricName string, serverSideNid string, step int64, metricList []dataobj.MetricValue) []dataobj.MetricValue {
+	now := time.Now().Unix()
+	sepStr := "||"
+	newM := make(map[float64]float64)
+	for up, count := range bucketM {
+		thisCounterStats := CounterStats{Value: count, Ts: now}
+		s := NewCommonCounterHis()
+
+		s.UpdateCounterStat(thisCounterStats)
+		mapKey := funcName + sepStr + newMetricName + sepStr + fmt.Sprintf("%f", up)
+		obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+		if !loaded {
+			continue
+		}
+		dataHis := obj.(*CommonCounterHis)
+		dataHis.UpdateCounterStat(thisCounterStats)
+		dataRate := dataHis.DeltaCounter()
+
+		dataMap.Map.Store(mapKey, dataHis)
+		newM[up] = dataRate
+
+	}
+	if len(newM) > 0 {
+
+		mm := bucketMetrics(newM, serverSideNid, newMetricName, step, newtagsm)
+		metricList = append(metricList, mm...)
+	}
+	return metricList
+}
+
+func successfulRate(m map[string]float64, nid string, metricName string, step int64, appendTags map[string]string) (metricList []dataobj.MetricValue) {
+	var (
+		suSum  float64 = 0
+		allSum float64 = 0
+	)
+	for label, sum := range m {
+		if strings.HasPrefix(label, "2") || strings.HasPrefix(label, "3") {
+			suSum += sum
+		}
+		allSum += sum
+
+	}
+	value := suSum / allSum
+
+	metric := dataobj.MetricValue{}
+	metric.Nid = nid
+	metric.Metric = metricName
+	metric.Timestamp = time.Now().Unix()
+	metric.Step = step
+	metric.CounterType = config.METRIC_TYPE_GAUGE
+	metric.ValueUntyped = value
+	metric.Value = value
+	metric.TagsMap = appendTags
+	metricList = append(metricList, metric)
+	return
+}
+
+func bucketMetrics(m map[float64]float64, nid string, metricName string, step int64, appendTags map[string]string) (metricList []dataobj.MetricValue) {
+	//fmt.Println("bucketMetrics", metricName, m)
+	if !strings.HasSuffix(metricName, "_bucket") {
+		return
+	}
+	var bks buckets
+	for upperBound, count := range m {
+		bk := bucket{upperBound: upperBound, count: count}
+		bks = append(bks, bk)
+	}
+	quantile50 := bucketQuantile(0.5, bks)
+	quantile90 := bucketQuantile(0.9, bks)
+	quantile95 := bucketQuantile(0.95, bks)
+	quantile99 := bucketQuantile(0.99, bks)
+
+	qm := make(map[string]float64)
+	if !checkFloatValidate(quantile50) {
+		qm["50"] = quantile50
+	}
+	if !checkFloatValidate(quantile90) {
+		qm["90"] = quantile90
+	}
+	if !checkFloatValidate(quantile95) {
+		qm["95"] = quantile95
+	}
+	if !checkFloatValidate(quantile99) {
+		qm["99"] = quantile99
+	}
+
+	ss := strings.Split(metricName, "_bucket")
+	newName := fmt.Sprintf("%s_%s", ss[0], "quantile")
+	for qu, value := range qm {
+		newTagsM := make(map[string]string)
+		newTagsM["quantile"] = qu
+		for k, v := range appendTags {
+			newTagsM[k] = v
+		}
+
+		metric := dataobj.MetricValue{}
+		metric.Nid = nid
+		metric.Metric = newName
+		metric.Timestamp = time.Now().Unix()
+		metric.Step = step
+		metric.CounterType = config.METRIC_TYPE_GAUGE
+		metric.ValueUntyped = value
+		metric.Value = value
+
+		metric.TagsMap = newTagsM
+		metricList = append(metricList, metric)
+	}
+	return
+}
 
 func GetHostName(logger log.Logger) string {
 	name, err := os.Hostname()
@@ -252,7 +478,7 @@ func ConcurrencyCurlMetricsByIpsSetNid(cg *config.CommonApiServerConfig, logger 
 	controlChan := make(chan int, cg.ConcurrencyLimit)
 
 	for uniqueHost, murl := range metricUrlMap {
-		if cg.HashModNum == 0 && cg.HashModShard == 0 {
+		if cg.HashModNum == 0 {
 			goto collect
 		} else {
 			mod := sum64(md5.Sum([]byte(murl))) % cg.HashModNum
@@ -316,7 +542,5 @@ func CurlTlsMetricsApi(logger log.Logger, funcName string, cg *config.CommonApiS
 	}
 
 	metrics, err := ParseCommon(bodyBytes, MapWhiteMetricsMap(cg.MetricsWhiteList), appendTagsM, step, logger)
-	//fmt.Println("cg.MetricsWhiteList", cg.MetricsWhiteList)
-	//level.Info(logger).Log("msg", "CurlTlsMetricsApi and ParseCommon time_took", "funcName", funcName, "addr", cg.Addr, "time_took_seconds", time.Since(start).Seconds())
 	return metrics, err
 }

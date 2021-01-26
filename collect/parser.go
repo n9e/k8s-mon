@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/didi/nightingale/src/common/dataobj"
@@ -42,18 +41,17 @@ func valueConv(valueUntyped interface{}) (error, float64) {
 
 func newMetricValue(metric string, val interface{}, dataType string, ts int64, tagsMap map[string]string) *dataobj.MetricValue {
 	_, v := valueConv(val)
-
+	now := time.Now().Unix()
 	mv := &dataobj.MetricValue{
 		Metric:       metric,
 		ValueUntyped: v,
 		Value:        v,
 		CounterType:  dataType,
-		Timestamp:    ts,
-		TagsMap:      tagsMap,
+		Timestamp:    now,
+		//Timestamp:    ts,
+		TagsMap: tagsMap,
 	}
-	//if err!=nil{
-	//
-	//}
+
 	return mv
 }
 
@@ -141,15 +139,16 @@ func ParseCommon(buf []byte, whiteMetricsMap map[string]struct{}, appendTagsMap 
 			// render endpoint info
 			for _, metric := range metrics {
 				// drop 所有bucket ，不能处理histogram
-				if strings.HasSuffix(metric.Metric, "_bucket") {
-					continue
-				}
+				//if strings.HasSuffix(metric.Metric, "_bucket") {
+				//	continue
+				//}
+
 				metric.Tags = makeAppendTags(metric.TagsMap, appendTagsMap)
 				metric.Step = step
-				// set provided Time, ms to s
-				if m.GetTimestampMs() > 0 {
-					metric.Timestamp = m.GetTimestampMs() / 1000
-				}
+				// TODO 跟prometheus的honor_timestamps 一样，直接用当前时间
+				//if m.GetTimestampMs() > 0 {
+				//	metric.Timestamp = m.GetTimestampMs() / 1000
+				//}
 
 				metricList = append(metricList, *metric)
 			}
@@ -171,14 +170,15 @@ func filterIgnoreMetric(metricName string, whiteMetricsMap map[string]struct{}) 
 
 // Get Quantiles from summary metric
 func makeQuantiles(basename string, m *dto.Metric) []*dataobj.MetricValue {
+	now := time.Now().Unix()
 	metrics := []*dataobj.MetricValue{}
 	tags := makeLabels(m)
 
 	countName := fmt.Sprintf("%s_count", basename)
-	metrics = append(metrics, NewCumulativeMetric(countName, m.GetSummary().SampleCount, now, tags))
+	metrics = append(metrics, NewCumulativeMetric(countName, *m.GetSummary().SampleCount, now, tags))
 
 	sumName := fmt.Sprintf("%s_sum", basename)
-	metrics = append(metrics, NewCumulativeMetric(sumName, m.GetSummary().SampleSum, now, tags))
+	metrics = append(metrics, NewCumulativeMetric(sumName, *m.GetSummary().SampleSum, now, tags))
 
 	for _, q := range m.GetSummary().Quantile {
 		tagsNew := make(map[string]string)
@@ -197,14 +197,15 @@ func makeQuantiles(basename string, m *dto.Metric) []*dataobj.MetricValue {
 
 // Get Buckets from histogram metric
 func makeBuckets(basename string, m *dto.Metric) []*dataobj.MetricValue {
+	now := time.Now().Unix()
 	metrics := []*dataobj.MetricValue{}
 	tags := makeLabels(m)
 
 	countName := fmt.Sprintf("%s_count", basename)
-	metrics = append(metrics, NewCumulativeMetric(countName, m.GetHistogram().SampleCount, now, tags))
+	metrics = append(metrics, NewCumulativeMetric(countName, *m.GetHistogram().SampleCount, now, tags))
 
 	sumName := fmt.Sprintf("%s_sum", basename)
-	metrics = append(metrics, NewCumulativeMetric(sumName, m.GetHistogram().SampleSum, now, tags))
+	metrics = append(metrics, NewCumulativeMetric(sumName, *m.GetHistogram().SampleSum, now, tags))
 
 	for _, b := range m.GetHistogram().Bucket {
 		tagsNew := make(map[string]string)
@@ -222,6 +223,7 @@ func makeBuckets(basename string, m *dto.Metric) []*dataobj.MetricValue {
 
 // Get gauge and counter from metric
 func makeCommon(metricName string, m *dto.Metric) []*dataobj.MetricValue {
+	now := time.Now().Unix()
 	var val float64
 	metrics := []*dataobj.MetricValue{}
 	tags := makeLabels(m)

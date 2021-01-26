@@ -24,4 +24,3 @@
 | kubelet-node cg操作处理平均延迟| kubelet_cgroup_manager_duration_seconds_sum /kubelet_cgroup_manager_duration_seconds_count || 
 
 
-
