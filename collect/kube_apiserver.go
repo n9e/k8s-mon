@@ -34,11 +34,15 @@ func DoApiServerCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMa
 	apiserver_response_sizes_bucket_m := make(map[float64]float64)
 	apiserver_response_sizes_bucket := "apiserver_response_sizes_bucket"
 
-	workqueue_queue_duration_seconds_bucket_m := make(map[float64]float64)
-	workqueue_queue_duration_seconds_bucket := "workqueue_queue_duration_seconds_bucket"
+	// 共同指标
+	rest_client_request_duration_seconds_bucket := "rest_client_request_duration_seconds_bucket"
+	rest_client_request_duration_seconds_bucket_m := make(map[float64]float64)
 
-	workqueue_work_duration_seconds_bucket_m := make(map[float64]float64)
+	workqueue_queue_duration_seconds_bucket := "workqueue_queue_duration_seconds_bucket"
+	workqueue_queue_duration_seconds_bucket_m := make(map[float64]float64)
+
 	workqueue_work_duration_seconds_bucket := "workqueue_work_duration_seconds_bucket"
+	workqueue_work_duration_seconds_bucket_m := make(map[float64]float64)
 
 	etcd_request_duration_seconds_bucket_m := make(map[float64]float64)
 	etcd_request_duration_seconds_bucket := "etcd_request_duration_seconds_bucket"
@@ -55,6 +59,9 @@ func DoApiServerCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMa
 
 	apiserver_response_sizes_sum := "apiserver_response_sizes_sum"
 	apiserver_response_sizes_count := "apiserver_response_sizes_count"
+
+	rest_client_request_duration_seconds_sum := "rest_client_request_duration_seconds_sum"
+	rest_client_request_duration_seconds_count := "rest_client_request_duration_seconds_count"
 
 	workqueue_queue_duration_seconds_sum := "workqueue_queue_duration_seconds_sum"
 	workqueue_queue_duration_seconds_count := "workqueue_queue_duration_seconds_count"
@@ -80,7 +87,7 @@ func DoApiServerCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMa
 		for k, v := range cg.AppendTags {
 			newtagsm[k] = v
 		}
-		metrics, err := CurlTlsMetricsApi(logger, funcName, c, newtagsm, cg.Step, cg.TimeOutSeconds)
+		metrics, err := CurlTlsMetricsApi(logger, funcName, c, newtagsm, cg.Step, cg.TimeOutSeconds, false)
 
 		if err != nil {
 			level.Error(logger).Log("msg", "CurlTlsMetricsResError", "func_name", funcName, "err:", err, "seq", fmt.Sprintf("%d/%d", index, allNum), "addr", c.Addr)
@@ -128,6 +135,12 @@ func DoApiServerCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMa
 				upperBound := metric.TagsMap["le"]
 				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
 				apiserver_response_sizes_bucket_m[upperBoundV] += metric.Value
+				continue
+			case rest_client_request_duration_seconds_bucket:
+
+				upperBound := metric.TagsMap["le"]
+				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
+				rest_client_request_duration_seconds_bucket_m[upperBoundV] += metric.Value
 				continue
 			case workqueue_queue_duration_seconds_bucket:
 
@@ -212,6 +225,24 @@ func DoApiServerCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMa
 				im["count"] += metric.Value
 				avg_m[newName] = im
 
+			//	共同指标
+			case rest_client_request_duration_seconds_sum:
+				newName := strings.Split(metric.Metric, "_sum")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["sum"] += metric.Value
+				avg_m[newName] = im
+
+			case rest_client_request_duration_seconds_count:
+				newName := strings.Split(metric.Metric, "_count")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["count"] += metric.Value
+				avg_m[newName] = im
 			case workqueue_queue_duration_seconds_sum:
 				newName := strings.Split(metric.Metric, "_sum")[0]
 				im, loaded := avg_m[newName]
@@ -301,9 +332,9 @@ func DoApiServerCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMa
 
 	metricList = histogramDeltaWork(dataMap, apiserver_response_sizes_bucket_m, newtagsm, funcName, apiserver_response_sizes_bucket, cg.ServerSideNid, cg.Step, metricList)
 
-	metricList = histogramDeltaWork(dataMap, workqueue_queue_duration_seconds_bucket_m, newtagsm, funcName, workqueue_queue_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
-
-	metricList = histogramDeltaWork(dataMap, workqueue_work_duration_seconds_bucket_m, newtagsm, funcName, workqueue_work_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, rest_client_request_duration_seconds_bucket_m, newtagsm, funcName, "apiserver_"+rest_client_request_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, workqueue_queue_duration_seconds_bucket_m, newtagsm, funcName, "apiserver_"+workqueue_queue_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, workqueue_work_duration_seconds_bucket_m, newtagsm, funcName, "apiserver_"+workqueue_work_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
 
 	metricList = histogramDeltaWork(dataMap, etcd_request_duration_seconds_bucket_m, newtagsm, funcName, etcd_request_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
 

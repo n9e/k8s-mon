@@ -37,6 +37,16 @@ func DoKubeSchedulerCollect(cg *config.Config, logger log.Logger, dataMap *Histo
 	scheduler_pod_scheduling_attempts_bucket := "scheduler_pod_scheduling_attempts_bucket"
 	scheduler_pod_scheduling_attempts_bucket_m := make(map[float64]float64)
 
+	// 共同指标
+	rest_client_request_duration_seconds_bucket := "rest_client_request_duration_seconds_bucket"
+	rest_client_request_duration_seconds_bucket_m := make(map[float64]float64)
+
+	workqueue_queue_duration_seconds_bucket := "workqueue_queue_duration_seconds_bucket"
+	workqueue_queue_duration_seconds_bucket_m := make(map[float64]float64)
+
+	workqueue_work_duration_seconds_bucket := "workqueue_work_duration_seconds_bucket"
+	workqueue_work_duration_seconds_bucket_m := make(map[float64]float64)
+
 	avg_m := make(map[string]map[string]float64)
 
 	scheduler_e2e_scheduling_duration_seconds_sum := "scheduler_e2e_scheduling_duration_seconds_sum"
@@ -51,6 +61,15 @@ func DoKubeSchedulerCollect(cg *config.Config, logger log.Logger, dataMap *Histo
 	scheduler_pod_scheduling_attempts_sum := "scheduler_pod_scheduling_attempts_sum"
 	scheduler_pod_scheduling_attempts_count := "scheduler_pod_scheduling_attempts_count"
 
+	rest_client_request_duration_seconds_sum := "rest_client_request_duration_seconds_sum"
+	rest_client_request_duration_seconds_count := "rest_client_request_duration_seconds_count"
+
+	workqueue_queue_duration_seconds_sum := "workqueue_queue_duration_seconds_sum"
+	workqueue_queue_duration_seconds_count := "workqueue_queue_duration_seconds_count"
+
+	workqueue_work_duration_seconds_sum := "workqueue_work_duration_seconds_sum"
+	workqueue_work_duration_seconds_count := "workqueue_work_duration_seconds_count"
+
 	for uniqueHost, murl := range metricUrlMap {
 		tmp := *cg.KubeSchedulerC
 		c := &tmp
@@ -63,7 +82,7 @@ func DoKubeSchedulerCollect(cg *config.Config, logger log.Logger, dataMap *Histo
 		for k, v := range cg.AppendTags {
 			newtagsm[k] = v
 		}
-		metrics, err := CurlTlsMetricsApi(logger, funcName, c, newtagsm, cg.Step, cg.TimeOutSeconds)
+		metrics, err := CurlTlsMetricsApi(logger, funcName, c, newtagsm, cg.Step, cg.TimeOutSeconds, false)
 
 		if err != nil {
 			level.Error(logger).Log("msg", "CurlTlsMetricsResError", "func_name", funcName, "err:", err, "seq", fmt.Sprintf("%d/%d", index, allNum), "addr", c.Addr)
@@ -101,6 +120,77 @@ func DoKubeSchedulerCollect(cg *config.Config, logger log.Logger, dataMap *Histo
 				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
 				scheduler_pod_scheduling_attempts_bucket_m[upperBoundV] += metric.Value
 				continue
+			case rest_client_request_duration_seconds_bucket:
+
+				upperBound := metric.TagsMap["le"]
+				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
+				rest_client_request_duration_seconds_bucket_m[upperBoundV] += metric.Value
+				continue
+			case workqueue_queue_duration_seconds_bucket:
+
+				upperBound := metric.TagsMap["le"]
+				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
+				workqueue_queue_duration_seconds_bucket_m[upperBoundV] += metric.Value
+				continue
+			case workqueue_work_duration_seconds_bucket:
+
+				upperBound := metric.TagsMap["le"]
+				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
+				workqueue_work_duration_seconds_bucket_m[upperBoundV] += metric.Value
+				continue
+
+				//	共同指标
+			case rest_client_request_duration_seconds_sum:
+				newName := strings.Split(metric.Metric, "_sum")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["sum"] += metric.Value
+				avg_m[newName] = im
+
+			case rest_client_request_duration_seconds_count:
+				newName := strings.Split(metric.Metric, "_count")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["count"] += metric.Value
+				avg_m[newName] = im
+			case workqueue_queue_duration_seconds_sum:
+				newName := strings.Split(metric.Metric, "_sum")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["sum"] += metric.Value
+				avg_m[newName] = im
+
+			case workqueue_queue_duration_seconds_count:
+				newName := strings.Split(metric.Metric, "_count")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["count"] += metric.Value
+				avg_m[newName] = im
+
+			case workqueue_work_duration_seconds_sum:
+				newName := strings.Split(metric.Metric, "_sum")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["sum"] += metric.Value
+				avg_m[newName] = im
+			case workqueue_work_duration_seconds_count:
+				newName := strings.Split(metric.Metric, "_count")[0]
+				im, loaded := avg_m[newName]
+				if !loaded {
+					im = make(map[string]float64)
+				}
+				im["count"] += metric.Value
+				avg_m[newName] = im
 
 			case scheduler_e2e_scheduling_duration_seconds_sum:
 				newName := strings.Split(metric.Metric, "_sum")[0]
@@ -200,6 +290,10 @@ func DoKubeSchedulerCollect(cg *config.Config, logger log.Logger, dataMap *Histo
 	metricList = histogramDeltaWork(dataMap, scheduler_pod_scheduling_duration_seconds_bucket_m, newtagsm, funcName, scheduler_pod_scheduling_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
 	metricList = histogramDeltaWork(dataMap, scheduler_scheduling_algorithm_duration_seconds_bucket_m, newtagsm, funcName, scheduler_scheduling_algorithm_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
 	metricList = histogramDeltaWork(dataMap, scheduler_pod_scheduling_attempts_bucket_m, newtagsm, funcName, scheduler_pod_scheduling_attempts_bucket, cg.ServerSideNid, cg.Step, metricList)
+
+	metricList = histogramDeltaWork(dataMap, rest_client_request_duration_seconds_bucket_m, newtagsm, funcName, "scheduler_"+rest_client_request_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, workqueue_queue_duration_seconds_bucket_m, newtagsm, funcName, "scheduler_"+workqueue_queue_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, workqueue_work_duration_seconds_bucket_m, newtagsm, funcName, "scheduler_"+workqueue_work_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
 
 	// 开始算平均值
 	for mName, avgm := range avg_m {

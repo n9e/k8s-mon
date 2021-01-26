@@ -2,41 +2,43 @@ package collect
 
 import (
 	"fmt"
-	"github.com/didi/nightingale/src/common/dataobj"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	"github.com/n9e/k8s-mon/config"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/didi/nightingale/src/common/dataobj"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+
+	"github.com/n9e/k8s-mon/config"
 )
 
-func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
+func DoKubeEtcdCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
 
 	start := time.Now()
-	metricUrlMap := GetServerSideAddr(cg.KubeControllerC, logger, dataMap, funcName)
+	metricUrlMap := GetServerSideAddr(cg.KubeEtcdC, logger, dataMap, funcName)
 	if len(metricUrlMap) == 0 {
 		level.Error(logger).Log("msg", "GetServerSideAddrEmpty", "funcName:", funcName)
 		return
 	}
 
-	rest_client_request_duration_seconds_bucket := "rest_client_request_duration_seconds_bucket"
-	rest_client_request_duration_seconds_bucket_m := make(map[float64]float64)
+	etcd_disk_wal_fsync_duration_seconds_bucket := "etcd_disk_wal_fsync_duration_seconds_bucket"
+	etcd_disk_wal_fsync_duration_seconds_bucket_m := make(map[float64]float64)
 
-	workqueue_queue_duration_seconds_bucket := "workqueue_queue_duration_seconds_bucket"
-	workqueue_queue_duration_seconds_bucket_m := make(map[float64]float64)
+	etcd_disk_backend_commit_duration_seconds_bucket := "etcd_disk_backend_commit_duration_seconds_bucket"
+	etcd_disk_backend_commit_duration_seconds_bucket_m := make(map[float64]float64)
 
-	workqueue_work_duration_seconds_bucket := "workqueue_work_duration_seconds_bucket"
-	workqueue_work_duration_seconds_bucket_m := make(map[float64]float64)
+	etcd_debugging_snap_save_total_duration_seconds_bucket := "etcd_debugging_snap_save_total_duration_seconds_bucket"
+	etcd_debugging_snap_save_total_duration_seconds_bucket_m := make(map[float64]float64)
 
-	rest_client_request_duration_seconds_sum := "rest_client_request_duration_seconds_sum"
-	rest_client_request_duration_seconds_count := "rest_client_request_duration_seconds_count"
+	etcd_disk_wal_fsync_duration_seconds_sum := "etcd_disk_wal_fsync_duration_seconds_sum"
+	etcd_disk_wal_fsync_duration_seconds_count := "etcd_disk_wal_fsync_duration_seconds_count"
 
-	workqueue_queue_duration_seconds_sum := "workqueue_queue_duration_seconds_sum"
-	workqueue_queue_duration_seconds_count := "workqueue_queue_duration_seconds_count"
+	etcd_disk_backend_commit_duration_seconds_sum := "etcd_disk_backend_commit_duration_seconds_sum"
+	etcd_disk_backend_commit_duration_seconds_count := "etcd_disk_backend_commit_duration_seconds_count"
 
-	workqueue_work_duration_seconds_sum := "workqueue_work_duration_seconds_sum"
-	workqueue_work_duration_seconds_count := "workqueue_work_duration_seconds_count"
+	etcd_debugging_snap_save_total_duration_seconds_sum := "etcd_debugging_snap_save_total_duration_seconds_sum"
+	etcd_debugging_snap_save_total_duration_seconds_count := "etcd_debugging_snap_save_total_duration_seconds_count"
 
 	avg_m := make(map[string]map[string]float64)
 
@@ -44,7 +46,7 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 	index := 0
 	allNum := len(metricUrlMap)
 	for uniqueHost, murl := range metricUrlMap {
-		tmp := *cg.KubeControllerC
+		tmp := *cg.KubeEtcdC
 		c := &tmp
 		c.Addr = murl
 		// 添加service_addr tag
@@ -69,26 +71,25 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 		for _, metric := range metrics {
 
 			switch metric.Metric {
-			case rest_client_request_duration_seconds_bucket:
+			case etcd_disk_wal_fsync_duration_seconds_bucket:
 
 				upperBound := metric.TagsMap["le"]
 				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
-				rest_client_request_duration_seconds_bucket_m[upperBoundV] += metric.Value
+				etcd_disk_wal_fsync_duration_seconds_bucket_m[upperBoundV] += metric.Value
 				continue
-			case workqueue_queue_duration_seconds_bucket:
+			case etcd_disk_backend_commit_duration_seconds_bucket:
 
 				upperBound := metric.TagsMap["le"]
 				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
-				workqueue_queue_duration_seconds_bucket_m[upperBoundV] += metric.Value
+				etcd_disk_backend_commit_duration_seconds_bucket_m[upperBoundV] += metric.Value
 				continue
-			case workqueue_work_duration_seconds_bucket:
+			case etcd_debugging_snap_save_total_duration_seconds_bucket:
 
 				upperBound := metric.TagsMap["le"]
 				upperBoundV, _ := strconv.ParseFloat(upperBound, 64)
-				workqueue_work_duration_seconds_bucket_m[upperBoundV] += metric.Value
+				etcd_debugging_snap_save_total_duration_seconds_bucket_m[upperBoundV] += metric.Value
 				continue
-				//	共同指标
-			case rest_client_request_duration_seconds_sum:
+			case etcd_disk_wal_fsync_duration_seconds_sum:
 				newName := strings.Split(metric.Metric, "_sum")[0]
 				im, loaded := avg_m[newName]
 				if !loaded {
@@ -97,7 +98,7 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 				im["sum"] += metric.Value
 				avg_m[newName] = im
 
-			case rest_client_request_duration_seconds_count:
+			case etcd_disk_wal_fsync_duration_seconds_count:
 				newName := strings.Split(metric.Metric, "_count")[0]
 				im, loaded := avg_m[newName]
 				if !loaded {
@@ -105,7 +106,7 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 				}
 				im["count"] += metric.Value
 				avg_m[newName] = im
-			case workqueue_queue_duration_seconds_sum:
+			case etcd_disk_backend_commit_duration_seconds_sum:
 				newName := strings.Split(metric.Metric, "_sum")[0]
 				im, loaded := avg_m[newName]
 				if !loaded {
@@ -114,7 +115,7 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 				im["sum"] += metric.Value
 				avg_m[newName] = im
 
-			case workqueue_queue_duration_seconds_count:
+			case etcd_disk_backend_commit_duration_seconds_count:
 				newName := strings.Split(metric.Metric, "_count")[0]
 				im, loaded := avg_m[newName]
 				if !loaded {
@@ -122,8 +123,7 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 				}
 				im["count"] += metric.Value
 				avg_m[newName] = im
-
-			case workqueue_work_duration_seconds_sum:
+			case etcd_debugging_snap_save_total_duration_seconds_sum:
 				newName := strings.Split(metric.Metric, "_sum")[0]
 				im, loaded := avg_m[newName]
 				if !loaded {
@@ -131,7 +131,8 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 				}
 				im["sum"] += metric.Value
 				avg_m[newName] = im
-			case workqueue_work_duration_seconds_count:
+
+			case etcd_debugging_snap_save_total_duration_seconds_count:
 				newName := strings.Split(metric.Metric, "_count")[0]
 				im, loaded := avg_m[newName]
 				if !loaded {
@@ -163,9 +164,9 @@ func DoKubeControllerCollect(cg *config.Config, logger log.Logger, dataMap *Hist
 	}
 
 	// 开始算quantile
-	metricList = histogramDeltaWork(dataMap, rest_client_request_duration_seconds_bucket_m, newtagsm, funcName, "controller_manager_"+rest_client_request_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
-	metricList = histogramDeltaWork(dataMap, workqueue_queue_duration_seconds_bucket_m, newtagsm, funcName, "controller_manager_"+workqueue_queue_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
-	metricList = histogramDeltaWork(dataMap, workqueue_work_duration_seconds_bucket_m, newtagsm, funcName, "controller_manager_"+workqueue_work_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, etcd_disk_wal_fsync_duration_seconds_bucket_m, newtagsm, funcName, etcd_disk_wal_fsync_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, etcd_disk_backend_commit_duration_seconds_bucket_m, newtagsm, funcName, etcd_disk_backend_commit_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
+	metricList = histogramDeltaWork(dataMap, etcd_debugging_snap_save_total_duration_seconds_bucket_m, newtagsm, funcName, etcd_debugging_snap_save_total_duration_seconds_bucket, cg.ServerSideNid, cg.Step, metricList)
 
 	// 开始算平均值
 	for mName, avgm := range avg_m {

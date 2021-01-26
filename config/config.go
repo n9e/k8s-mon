@@ -31,6 +31,7 @@ type Config struct {
 	KubeSchedulerC                 *CommonApiServerConfig `yaml:"kube_scheduler"`
 	KubeControllerC                *CommonApiServerConfig `yaml:"kube_controller_manager"`
 	KubeProxyC                     *CommonApiServerConfig `yaml:"kube_proxy"`
+	KubeEtcdC                      *CommonApiServerConfig `yaml:"kube_etcd"`
 	KubeletNodeC                   *CommonApiServerConfig `yaml:"kubelet_node"`
 }
 

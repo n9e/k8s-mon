@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/didi/nightingale/src/common/dataobj"
@@ -93,7 +94,7 @@ func FmtFalconMetricValue(vs []*dataobj.MetricValue, step int64) []*fmodel.Metri
 	return rt
 }
 
-func ParseCommon(buf []byte, whiteMetricsMap map[string]struct{}, appendTagsMap map[string]string, step int64, logger log.Logger) ([]dataobj.MetricValue, error) {
+func ParseCommon(buf []byte, whiteMetricsMap map[string]struct{}, appendTagsMap map[string]string, step int64, logger log.Logger, dropBucket bool) ([]dataobj.MetricValue, error) {
 	var metricList []dataobj.MetricValue
 	var parser expfmt.TextParser
 	// parse even if the buffer begins with a newline
@@ -139,9 +140,10 @@ func ParseCommon(buf []byte, whiteMetricsMap map[string]struct{}, appendTagsMap 
 			// render endpoint info
 			for _, metric := range metrics {
 				// drop 所有bucket ，不能处理histogram
-				//if strings.HasSuffix(metric.Metric, "_bucket") {
-				//	continue
-				//}
+
+				if dropBucket && strings.HasSuffix(metric.Metric, "_bucket") {
+					continue
+				}
 
 				metric.Tags = makeAppendTags(metric.TagsMap, appendTagsMap)
 				metric.Step = step

@@ -29,6 +29,10 @@ spec:
           volumeMounts:
             - mountPath: /etc/k8s-mon
               name: config-volume
+            - mountPath: "/etc/secrets/etcd-certs"
+              name: secret-volume
+              readOnly: true
+
           ports:
             - containerPort: 9901
           resources:
@@ -40,7 +44,10 @@ spec:
               memory: 2500Mi
       serviceAccountName: k8s-mon
       volumes:
-        - configMap:
+        - name: config-volume
+          configMap:
             defaultMode: 420
             name: k8s-mon-deployment
-          name: config-volume
+        - name: secret-volume
+          secret:
+            secretName: etcd-certs

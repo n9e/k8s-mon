@@ -19,7 +19,7 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 		return
 	}
 	cg.KubeStatsC.Addr = cg.KubeStatsC.UserSpecifyAddrs[0]
-	metrics, err := CurlTlsMetricsApi(logger, funcName, cg.KubeStatsC, cg.AppendTags, cg.Step, cg.TimeOutSeconds)
+	metrics, err := CurlTlsMetricsApi(logger, funcName, cg.KubeStatsC, cg.AppendTags, cg.Step, cg.TimeOutSeconds, true)
 
 	if err != nil {
 		level.Error(logger).Log("msg", "DoKubeStatsMetricsCollectCurlTlsMetricsApiResError", "err", err)

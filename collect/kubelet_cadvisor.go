@@ -19,7 +19,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 		cg.KubeletC.Addr = cg.KubeletC.UserSpecifyAddrs[0]
 	}
 
-	metrics, err := CurlTlsMetricsApi(logger, funcName, cg.KubeletC, cg.AppendTags, cg.Step, cg.TimeOutSeconds)
+	metrics, err := CurlTlsMetricsApi(logger, funcName, cg.KubeletC, cg.AppendTags, cg.Step, cg.TimeOutSeconds, true)
 	if err != nil {
 		level.Error(logger).Log("msg", "CurlTlsMetricsApiResError", "err:", err)
 		return

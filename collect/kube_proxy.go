@@ -36,7 +36,7 @@ func DoKubeProxyOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *His
 	for k, v := range cg.AppendTags {
 		m[k] = v
 	}
-	metricList, err := CurlTlsMetricsApi(logger, funcName, cg.KubeProxyC, m, cg.Step, cg.TimeOutSeconds)
+	metricList, err := CurlTlsMetricsApi(logger, funcName, cg.KubeProxyC, m, cg.Step, cg.TimeOutSeconds, true)
 	if err != nil {
 		level.Error(logger).Log("msg", "CurlTlsMetricsApiResError", "err:", err, "funcName", funcName)
 		return
@@ -59,6 +59,6 @@ func DoKubeProxyOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *His
 }
 
 func DoKubeProxyCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
-	ConcurrencyCurlMetricsByIpsSetNid(cg.KubeProxyC, logger, dataMap, funcName, cg.AppendTags, cg.Step, cg.TimeOutSeconds, cg.MultiServerInstanceUniqueLabel, cg.MultiFuncUniqueLabel, cg.ServerSideNid, cg.PushServerAddr)
+	ConcurrencyCurlMetricsByIpsSetNid(cg.KubeProxyC, logger, dataMap, funcName, cg.AppendTags, cg.Step, cg.TimeOutSeconds, cg.MultiServerInstanceUniqueLabel, cg.MultiFuncUniqueLabel, cg.ServerSideNid, cg.PushServerAddr, true)
 
 }

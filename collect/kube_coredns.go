@@ -51,7 +51,7 @@ func DoKubeCoreDnsCollect(cg *config.Config, logger log.Logger, dataMap *History
 		for k, v := range cg.AppendTags {
 			newtagsm[k] = v
 		}
-		metrics, err := CurlTlsMetricsApi(logger, funcName, c, newtagsm, cg.Step, cg.TimeOutSeconds)
+		metrics, err := CurlTlsMetricsApi(logger, funcName, c, newtagsm, cg.Step, cg.TimeOutSeconds, false)
 
 		if err != nil {
 			level.Error(logger).Log("msg", "CurlTlsMetricsResError", "func_name", funcName, "err:", err, "seq", fmt.Sprintf("%d/%d", index, allNum), "addr", c.Addr)

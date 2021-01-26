@@ -53,6 +53,56 @@ data:
         - volumeBindingMode
         - poddisruptionbudget
 
+    kube_etcd:
+      concurrency_limit: 5
+      user_specified: false
+      addrs:
+        - "https://localhost:2379/metrics"
+      scheme: https
+      metrics_path: metrics
+      port: 2379
+      tls_config:
+        ca_file: /etc/secrets/etcd-certs/ca.crt
+        cert_file: /etc/secrets/etcd-certs/healthcheck-client.crt
+        key_file: /etc/secrets/etcd-certs/healthcheck-client.key
+        insecure_skip_verify: true
+      metrics_white_list:
+        - go_gc_duration_seconds
+        - go_goroutines
+        - go_memstats_alloc_bytes
+        - go_memstats_heap_inuse_bytes
+        - go_memstats_stack_inuse_bytes
+        - process_cpu_seconds_total
+        - process_open_fds
+        - process_resident_memory_bytes
+        - etcd_debugging_mvcc_db_compaction_keys_total
+        - etcd_debugging_mvcc_delete_total
+        - etcd_debugging_mvcc_keys_total
+        - etcd_debugging_mvcc_put_total
+        - etcd_debugging_snap_save_total_duration_seconds
+        - etcd_disk_backend_commit_duration_seconds
+        - etcd_disk_wal_fsync_duration_seconds
+        - etcd_mvcc_db_total_size_in_bytes
+        - etcd_mvcc_db_total_size_in_use_in_bytes
+        - etcd_network_client_grpc_received_bytes_total
+        - etcd_network_client_grpc_sent_bytes_total
+        - etcd_server_has_leader
+        - etcd_server_health_failures
+        - etcd_server_heartbeat_send_failures_total
+        - etcd_server_id
+        - etcd_server_is_leader
+        - etcd_server_leader_changes_seen_total
+        - etcd_server_proposals_applied_total
+        - etcd_server_proposals_committed_total
+        - etcd_server_proposals_failed_total
+        - etcd_server_proposals_pending
+        - etcd_server_quota_backend_bytes
+        - etcd_server_slow_apply_total
+        - etcd_server_slow_read_indexes_total
+        - grpc_server_handled_total
+        - grpc_server_started_total
+      tags_white_list:
+
     apiserver:
       concurrency_limit: 5
       user_specified: false
@@ -66,6 +116,16 @@ data:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         insecure_skip_verify: true
       metrics_white_list:
+        - go_gc_duration_seconds
+        - go_goroutines
+        - go_memstats_alloc_bytes
+        - go_memstats_heap_inuse_bytes
+        - go_memstats_stack_inuse_bytes
+        - process_cpu_seconds_total
+        - process_open_fds
+        - process_resident_memory_bytes
+        - rest_client_requests_total
+        - rest_client_request_duration_seconds
         - apiserver_client_certificate_expiration_seconds
         - apiserver_current_inflight_requests
         - apiserver_current_inqueue_requests
@@ -100,6 +160,19 @@ data:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         insecure_skip_verify: true
       metrics_white_list:
+        - go_gc_duration_seconds
+        - go_goroutines
+        - go_memstats_alloc_bytes
+        - go_memstats_heap_inuse_bytes
+        - go_memstats_stack_inuse_bytes
+        - process_cpu_seconds_total
+        - process_open_fds
+        - process_resident_memory_bytes
+
+        - rest_client_requests_total
+        - rest_client_request_duration_seconds
+        - workqueue_queue_duration_seconds
+        - workqueue_work_duration_seconds
         - scheduler_e2e_scheduling_duration_seconds
         - scheduler_pod_scheduling_duration_seconds
         - scheduler_pending_pods
@@ -121,15 +194,26 @@ data:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         insecure_skip_verify: true
       metrics_white_list:
+        - go_gc_duration_seconds
+        - go_goroutines
+        - go_memstats_alloc_bytes
+        - go_memstats_heap_inuse_bytes
+        - go_memstats_stack_inuse_bytes
+        - process_cpu_seconds_total
+        - process_open_fds
+        - process_resident_memory_bytes
+
         - workqueue_adds_total
         - workqueue_depth
-        - workqueue_queue_duration_seconds
         - rest_client_requests_total
         - rest_client_request_duration_seconds
+        - workqueue_queue_duration_seconds
+        - workqueue_work_duration_seconds
 
       tags_white_list:
 
     coredns:
+
       concurrency_limit: 5
       user_specified: false
       addrs:
@@ -138,6 +222,14 @@ data:
       scheme: http
       metrics_path: metrics
       metrics_white_list:
+        - go_gc_duration_seconds
+        - go_goroutines
+        - go_memstats_alloc_bytes
+        - go_memstats_heap_inuse_bytes
+        - go_memstats_stack_inuse_bytes
+        - process_cpu_seconds_total
+        - process_open_fds
+        - process_resident_memory_bytes
         - coredns_dns_requests_total
         - coredns_dns_responses_total
         - coredns_cache_entries

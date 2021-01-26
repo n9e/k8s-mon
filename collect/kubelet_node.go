@@ -36,7 +36,7 @@ func DoKubeletNodeOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *H
 		m[k] = v
 	}
 
-	metricList, err := CurlTlsMetricsApi(logger, funcName, cg.KubeletNodeC, m, cg.Step, cg.TimeOutSeconds)
+	metricList, err := CurlTlsMetricsApi(logger, funcName, cg.KubeletNodeC, m, cg.Step, cg.TimeOutSeconds, true)
 	if err != nil {
 		level.Error(logger).Log("msg", "CurlTlsMetricsApiResError", "err:", err, "funcName", funcName)
 		return
@@ -60,6 +60,6 @@ func DoKubeletNodeOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *H
 }
 
 func DoKubeletNodeCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap, funcName string) {
-	ConcurrencyCurlMetricsByIpsSetNid(cg.KubeletNodeC, logger, dataMap, funcName, cg.AppendTags, cg.Step, cg.TimeOutSeconds, cg.MultiServerInstanceUniqueLabel, cg.MultiFuncUniqueLabel, cg.ServerSideNid, cg.PushServerAddr)
+	ConcurrencyCurlMetricsByIpsSetNid(cg.KubeletNodeC, logger, dataMap, funcName, cg.AppendTags, cg.Step, cg.TimeOutSeconds, cg.MultiServerInstanceUniqueLabel, cg.MultiFuncUniqueLabel, cg.ServerSideNid, cg.PushServerAddr, true)
 
 }

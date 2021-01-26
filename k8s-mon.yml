@@ -6,10 +6,10 @@ apiserver:
   scheme: https
   metrics_path: metrics
   port: 6443
-#  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  #  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
   bearer_token_file: /root/token
   tls_config:
-#    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    #    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     insecure_skip_verify: true
   metrics_white_list:
     - apiserver_client_certificate_expiration_seconds
@@ -32,219 +32,264 @@ apiserver:
     - workqueue_retries_total
     - workqueue_work_duration_seconds
 
-#
-#kube_stats_metrics:
-#  concurrency_limit: 10
-#  user_specified: true
-#  addrs:
-#    - "http://kube-state-metrics.kube-system:8080/metrics"
-#  metrics_white_list:
-#  tags_white_list:
-#    - namespace
-#    - pod
-#    - pod_name
-#    - container
-#    - container_name
-#    - reason
-#    - secret
-#    - condition
-#    - node
-#    - deployment
-#    - configmap
-#    - daemonset
-#    - endpoint
-#    - replicaset
-#    - statefulset
-#    - persistentvolumeclaim
-#    - persistentvolume
-#    - service
-#    - phase
-#    - type
-#    - status
-#    - resource
-#    - unit
-#    - host_ip
-#    - pod_ip
-#    - cluster_ip
-#    - external_name
-#    - load_balancer_ip
-#    - storageclass
-#    - kernel_version
-#    - os_image
-#    - role
-#    - volume
-#    - access_mode
-#    - volumename
-#    - provisioner
-#    - reclaimPolicy
-#    - volumeBindingMode
-#    - poddisruptionbudget
-#
-#kube_scheduler:
-#  concurrency_limit: 10
-#  user_specified: false
-#  addrs:
-#    - "https://localhost:10259/metrics"
-#  scheme: https
-#  metrics_path: metrics
-#  port: 10259
-#
-#  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-#  tls_config:
-#    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-#    insecure_skip_verify: true
-#  metrics_white_list:
-#    - scheduler_e2e_scheduling_duration_seconds
-#    - scheduler_pod_scheduling_duration_seconds
-#    - scheduler_pending_pods
-#    - scheduler_queue_incoming_pods_total
-#    - scheduler_scheduling_algorithm_duration_seconds
-#    - scheduler_pod_scheduling_attempts
-#  tags_white_list:
-#
-#kube_controller_manager:
-#  concurrency_limit: 10
-#  user_specified: false
-#  addrs:
-#    - "https://localhost:10257/metrics"
-#  port: 10257
-#  scheme: https
-#  metrics_path: metrics
-#  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-#  tls_config:
-#    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-#    insecure_skip_verify: true
-#  metrics_white_list:
-#    - workqueue_adds_total
-#    - workqueue_depth
-#    - workqueue_queue_duration_seconds
-#    - rest_client_requests_total
-#    - rest_client_request_duration_seconds
-#  tags_white_list:
-#
-#
-#coredns:
-#  concurrency_limit: 10
-#  user_specified: false
-#  addrs:
-#    - "http://kube-dns.kube-system:9153/metrics"
-#  port: 9153
-#  scheme: http
-#  metrics_path: metrics
-#  metrics_white_list:
-#    - coredns_dns_requests_total
-#    - coredns_dns_responses_total
-#    - coredns_cache_entries
-#    - coredns_cache_hits_total
-#    - coredns_cache_misses_total
-#    - coredns_dns_request_duration_seconds
-#    - coredns_dns_response_size_bytes
-#  tags_white_list:
-#
-#kube_proxy:
-#  concurrency_limit: 10
-#  user_specified: false
-#  addrs:
-#    - "http://127.0.0.1:10249/metrics"
-#  port: 10249
-#  scheme: http
-#  metrics_path: metrics
-#  metrics_white_list:
-#    - kubeproxy_sync_proxy_rules_duration_seconds
-#    - kubeproxy_network_programming_duration_seconds
-#    - rest_client_requests_total
-#    - rest_client_request_latency_seconds
-#  tags_white_list:
-#
-#kubelet_node:
-#  #hash_mod_num: 2
-#  #hash_mod_shard: 1
-#  concurrency_limit: 10
-#  user_specified: false
-#  addrs:
-#    - "https://127.0.0.1:10250/metrics"
-#  port: 10250
-#  scheme: https
-#  metrics_path: metrics
-#  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-#  tls_config:
-#    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-#    insecure_skip_verify: true
-#  metrics_white_list:
-#    - kubelet_running_pods
-#    - kubelet_running_containers
-#    - volume_manager_total_volumes
-#    - kubelet_node_config_error
-#    - kubelet_runtime_operations_total
-#    - kubelet_runtime_operations_errors_total
-#    - kubelet_runtime_operations_duration_seconds
-#    - storage_operation_duration_seconds
-#    - kubelet_cgroup_manager_duration_seconds
-#    - rest_client_requests_total
-#    - rest_client_request_latency_seconds
-#  tags_white_list:
-### end of server-side-mon
-#
-#kubelet:
-#  identify_mode: "nid" # or "pod_name"
-#  addr: "https://localhost:10250/metrics/cadvisor"
-#  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-#  tls_config:
-#    #ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-#    insecure_skip_verify: true
-#
-#  metrics_white_list:
-#    # cpu metrics
-#    - container_spec_cpu_quota
-#    - container_cpu_usage_seconds_total
-#    - container_cpu_user_seconds_total
-#    - container_cpu_system_seconds_total
-#
-#    - container_cpu_cfs_periods_total
-#    - container_cpu_cfs_throttled_periods_total
-#    - container_cpu_cfs_throttled_seconds_total
-#
-#    # mem metrics
-#    - container_spec_memory_limit_bytes
-#    - container_memory_working_set_bytes
-#    - container_memory_usage_bytes
-#    - container_memory_cache
-#    - container_memory_rss
-#    - container_memory_swap
-#
-#    # fs metrics
-#    - container_fs_usage_bytes
-#    - container_fs_limit_bytes
-#    - container_fs_reads_bytes_total
-#    - container_fs_writes_bytes_total
-#
-#    # network metrics
-#    - container_network_receive_bytes_total
-#    - container_network_receive_errors_total
-#    - container_network_receive_packets_total
-#    - container_network_receive_packets_dropped_total
-#    - container_network_transmit_bytes_total
-#    - container_network_transmit_errors_total
-#    - container_network_transmit_packets_total
-#    - container_network_transmit_packets_dropped_total
-#
-#    #  system metrics
-#    - container_processes
-#    - container_threads
-#    - container_file_descriptors
-#    - container_ulimits_soft
-#    - container_sockets
-#    - container_tasks_state
-#  tags_white_list:
-#    - pod
-#    - pod_name
-#    - container
-#    - container_name
-#    - namespace
-#    - device
-#    - state
-#    - interface
-#    - cpu
+
+kube_stats_metrics:
+  concurrency_limit: 10
+  user_specified: true
+  addrs:
+    - "http://kube-state-metrics.kube-system:8080/metrics"
+  metrics_white_list:
+  tags_white_list:
+    - namespace
+    - pod
+    - pod_name
+    - container
+    - container_name
+    - reason
+    - secret
+    - condition
+    - node
+    - deployment
+    - configmap
+    - daemonset
+    - endpoint
+    - replicaset
+    - statefulset
+    - persistentvolumeclaim
+    - persistentvolume
+    - service
+    - phase
+    - type
+    - status
+    - resource
+    - unit
+    - host_ip
+    - pod_ip
+    - cluster_ip
+    - external_name
+    - load_balancer_ip
+    - storageclass
+    - kernel_version
+    - os_image
+    - role
+    - volume
+    - access_mode
+    - volumename
+    - provisioner
+    - reclaimPolicy
+    - volumeBindingMode
+    - poddisruptionbudget
+
+kube_scheduler:
+  concurrency_limit: 10
+  user_specified: true
+  addrs:
+    - "https://localhost:10259/metrics"
+  scheme: https
+  metrics_path: metrics
+  port: 10259
+
+  #  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  bearer_token_file: /root/token
+  tls_config:
+    #    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+  metrics_white_list:
+    - scheduler_e2e_scheduling_duration_seconds
+    - scheduler_pod_scheduling_duration_seconds
+    - scheduler_pending_pods
+    - scheduler_queue_incoming_pods_total
+    - scheduler_scheduling_algorithm_duration_seconds
+    - scheduler_pod_scheduling_attempts
+  tags_white_list:
+
+kube_controller_manager:
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "https://localhost:10257/metrics"
+  port: 10257
+  scheme: https
+  metrics_path: metrics
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+  metrics_white_list:
+    - workqueue_adds_total
+    - workqueue_depth
+    - workqueue_queue_duration_seconds
+    - rest_client_requests_total
+    - rest_client_request_duration_seconds
+  tags_white_list:
+
+
+coredns:
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "http://kube-dns.kube-system:9153/metrics"
+  port: 9153
+  scheme: http
+  metrics_path: metrics
+  metrics_white_list:
+    - coredns_dns_requests_total
+    - coredns_dns_responses_total
+    - coredns_cache_entries
+    - coredns_cache_hits_total
+    - coredns_cache_misses_total
+    - coredns_dns_request_duration_seconds
+    - coredns_dns_response_size_bytes
+  tags_white_list:
+
+kube_proxy:
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "http://127.0.0.1:10249/metrics"
+  port: 10249
+  scheme: http
+  metrics_path: metrics
+  metrics_white_list:
+    - kubeproxy_sync_proxy_rules_duration_seconds
+    - kubeproxy_network_programming_duration_seconds
+    - rest_client_requests_total
+    - rest_client_request_latency_seconds
+  tags_white_list:
+
+kubelet_node:
+  #hash_mod_num: 2
+  #hash_mod_shard: 1
+  concurrency_limit: 10
+  user_specified: false
+  addrs:
+    - "https://127.0.0.1:10250/metrics"
+  port: 10250
+  scheme: https
+  metrics_path: metrics
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+  metrics_white_list:
+    - kubelet_running_pods
+    - kubelet_running_containers
+    - volume_manager_total_volumes
+    - kubelet_node_config_error
+    - kubelet_runtime_operations_total
+    - kubelet_runtime_operations_errors_total
+    - kubelet_runtime_operations_duration_seconds
+    - storage_operation_duration_seconds
+    - kubelet_cgroup_manager_duration_seconds
+    - rest_client_requests_total
+    - rest_client_request_latency_seconds
+  tags_white_list:
+## end of server-side-mon
+
+kubelet:
+  identify_mode: "nid" # or "pod_name"
+  addr: "https://localhost:10250/metrics/cadvisor"
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tls_config:
+    #ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    insecure_skip_verify: true
+
+  metrics_white_list:
+    # cpu metrics
+    - container_spec_cpu_quota
+    - container_cpu_usage_seconds_total
+    - container_cpu_user_seconds_total
+    - container_cpu_system_seconds_total
+
+    - container_cpu_cfs_periods_total
+    - container_cpu_cfs_throttled_periods_total
+    - container_cpu_cfs_throttled_seconds_total
+
+    # mem metrics
+    - container_spec_memory_limit_bytes
+    - container_memory_working_set_bytes
+    - container_memory_usage_bytes
+    - container_memory_cache
+    - container_memory_rss
+    - container_memory_swap
+
+    # fs metrics
+    - container_fs_usage_bytes
+    - container_fs_limit_bytes
+    - container_fs_reads_bytes_total
+    - container_fs_writes_bytes_total
+
+    # network metrics
+    - container_network_receive_bytes_total
+    - container_network_receive_errors_total
+    - container_network_receive_packets_total
+    - container_network_receive_packets_dropped_total
+    - container_network_transmit_bytes_total
+    - container_network_transmit_errors_total
+    - container_network_transmit_packets_total
+    - container_network_transmit_packets_dropped_total
+
+    #  system metrics
+    - container_processes
+    - container_threads
+    - container_file_descriptors
+    - container_ulimits_soft
+    - container_sockets
+    - container_tasks_state
+  tags_white_list:
+    - pod
+    - pod_name
+    - container
+    - container_name
+    - namespace
+    - device
+    - state
+    - interface
+    - cpu
+
+kube_etcd:
+  concurrency_limit: 5
+  user_specified: false
+  addrs:
+    - "https://localhost:2379/metrics"
+  scheme: https
+  metrics_path: metrics
+  port: 2379
+  tls_config:
+    ca_file: /etc/secrets/etcd-certs/ca.crt
+    cert_file: /etc/secrets/etcd-certs/healthcheck-client.crt
+    key_file: /etc/secrets/etcd-certs/healthcheck-client.key
+    insecure_skip_verify: true
+  metrics_white_list:
+    - process_resident_memory_bytes
+    - etcd_debugging_mvcc_db_compaction_keys_total
+    - etcd_debugging_mvcc_delete_total
+    - etcd_debugging_mvcc_keys_total
+    - etcd_debugging_mvcc_put_total
+    - etcd_debugging_snap_save_total_duration_seconds
+    - etcd_disk_backend_commit_duration_seconds
+    - etcd_disk_wal_fsync_duration_seconds
+    - etcd_mvcc_db_total_size_in_bytes
+    - etcd_mvcc_db_total_size_in_use_in_bytes
+    - etcd_network_client_grpc_received_bytes_total
+    - etcd_network_client_grpc_sent_bytes_total
+    - etcd_server_has_leader
+    - etcd_server_health_failures
+    - etcd_server_heartbeat_send_failures_total
+    - etcd_server_id
+    - etcd_server_is_leader
+    - etcd_server_leader_changes_seen_total
+    - etcd_server_proposals_applied_total
+    - etcd_server_proposals_committed_total
+    - etcd_server_proposals_failed_total
+    - etcd_server_proposals_pending
+    - etcd_server_quota_backend_bytes
+    - etcd_server_slow_apply_total
+    - etcd_server_slow_read_indexes_total
+    - grpc_server_handled_total
+    - grpc_server_started_total
+  tags_white_list:
+
 
 cadvisor:
   addr:  "http://127.0.0.1:4194/"

@@ -389,12 +389,12 @@ func GetServerSideAddr(cg *config.CommonApiServerConfig, logger log.Logger, data
 	return
 }
 
-func AsyncCurlMetricsAndPush(controlChan chan int, c *config.CommonApiServerConfig, logger log.Logger, funcName string, m map[string]string, step int64, tw int64, index int, allNum int, serverSideNid string, pushServerAddr string) {
+func AsyncCurlMetricsAndPush(controlChan chan int, c *config.CommonApiServerConfig, logger log.Logger, funcName string, m map[string]string, step int64, tw int64, index int, allNum int, serverSideNid string, pushServerAddr string, dropBucket bool) {
 	start := time.Now()
 	defer func() {
 		<-controlChan
 	}()
-	metricList, err := CurlTlsMetricsApi(logger, funcName, c, m, step, tw)
+	metricList, err := CurlTlsMetricsApi(logger, funcName, c, m, step, tw, dropBucket)
 
 	if err != nil {
 		level.Error(logger).Log("msg", "CurlTlsMetricsResError", "func_name", funcName, "err:", err, "seq", fmt.Sprintf("%d/%d", index, allNum), "addr", c.Addr)
@@ -465,7 +465,7 @@ func sum64(hash [md5.Size]byte) uint64 {
 	return s
 }
 
-func ConcurrencyCurlMetricsByIpsSetNid(cg *config.CommonApiServerConfig, logger log.Logger, dataMap *HistoryMap, funcName string, appendTags map[string]string, step int64, tw int64, multiServerInstanceUniqueLabel string, multiFuncUniqueLabel string, serverSideNid string, pushServerAddr string) {
+func ConcurrencyCurlMetricsByIpsSetNid(cg *config.CommonApiServerConfig, logger log.Logger, dataMap *HistoryMap, funcName string, appendTags map[string]string, step int64, tw int64, multiServerInstanceUniqueLabel string, multiFuncUniqueLabel string, serverSideNid string, pushServerAddr string, dropBucket bool) {
 	metricUrlMap := GetServerSideAddr(cg, logger, dataMap, funcName)
 	if len(metricUrlMap) == 0 {
 		level.Error(logger).Log("msg", "GetServerSideAddrEmpty", "funcName:", funcName)
@@ -509,13 +509,13 @@ func ConcurrencyCurlMetricsByIpsSetNid(cg *config.CommonApiServerConfig, logger 
 		for k, v := range appendTags {
 			m[k] = v
 		}
-		go AsyncCurlMetricsAndPush(controlChan, c, logger, funcName, m, step, tw, seq+1, len(metricUrlMap), serverSideNid, pushServerAddr)
+		go AsyncCurlMetricsAndPush(controlChan, c, logger, funcName, m, step, tw, seq+1, len(metricUrlMap), serverSideNid, pushServerAddr, dropBucket)
 		seq += 1
 	}
 	return
 }
 
-func CurlTlsMetricsApi(logger log.Logger, funcName string, cg *config.CommonApiServerConfig, appendTagsM map[string]string, step int64, timeout int64) ([]dataobj.MetricValue, error) {
+func CurlTlsMetricsApi(logger log.Logger, funcName string, cg *config.CommonApiServerConfig, appendTagsM map[string]string, step int64, timeout int64, dropBucket bool) ([]dataobj.MetricValue, error) {
 	//start := time.Now()
 	client, err := config_util.NewClientFromConfig(cg.HTTPClientConfig, funcName, false, false)
 	if err != nil {
@@ -541,6 +541,6 @@ func CurlTlsMetricsApi(logger log.Logger, funcName string, cg *config.CommonApiS
 		return nil, err
 	}
 
-	metrics, err := ParseCommon(bodyBytes, MapWhiteMetricsMap(cg.MetricsWhiteList), appendTagsM, step, logger)
+	metrics, err := ParseCommon(bodyBytes, MapWhiteMetricsMap(cg.MetricsWhiteList), appendTagsM, step, logger, dropBucket)
 	return metrics, err
 }

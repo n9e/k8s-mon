@@ -216,6 +216,21 @@ func main() {
 			})
 		}
 
+		if sConfig.KubeEtcdC != nil {
+			// etcd
+			g.Add(func() error {
+
+				err := collect.CommonCollectTickerForWithDataM(sConfig, ctxAll, logger, serviceIsM, collect.DoKubeEtcdCollect, config.FUNCNAME_ETCD)
+				if err != nil {
+					level.Error(logger).Log("msg", "etcd  collect-manager stopped")
+				}
+
+				return err
+			}, func(err error) {
+				cancelAll()
+
+			})
+		}
 		if sConfig.KubeletNodeC != nil {
 			// kubelet-node
 			g.Add(func() error {

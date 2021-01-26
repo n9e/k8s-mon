@@ -23,6 +23,8 @@
 - 服务组件采集时会添加`func_name`标签作为区分具体组件任务，类似`prometheus`的`job`标签 
 - 基础指标添加`node_ip` ,`node_name`作为宿主机标识标签
 - ksm指标没有nid的默认上报到服务节点`server_side_nid` ，例如`kube_node_status_allocatable_cpu_cores`这种共享指标
+- 服务组件采集预聚合了一些指标，包括 分位值、平均值、成功率，对应文档在 `metrics-detail/preaggregation.md`
+- 服务组件采集了对应golang 进程的指标 包括 内存、goroutine等 ，对应文档在 `metrics-detail/process-resource.md`
 
 ## 采集内容说明
 
@@ -60,6 +62,9 @@
 ```shell script
 # 创建namespace kube-admin
 kubectl create ns kube-admin
+# 创建访问etcd所需secret，在master上执行（不采集etcd则不需要）
+kubectl create secret generic etcd-certs --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key --from-file=/etc/kubernetes/pki/etcd/ca.crt -n kube-admin
+
 ```
 
 > 下载代码，打镜像
@@ -73,6 +78,7 @@ git clone https://github.com/n9e/k8s-mon
 # 如需修改镜像名字，需要同步修改daemonset 和deployment yaml文件中的image字段
 # 镜像需要同步到所有node，最好上传到仓库中
 cd k8s-mon  && docker build -t k8s-mon:v1 . 
+
 ```
 
 
@@ -179,7 +185,6 @@ append_tags:
 - 修改`k8s-config/configMap_deployment.yaml` 中的指定项目的 `concurrency_limit` 字段，默认10
 
 
-
 > 如需服务组件采集多实例时的特征标签
 - 修改`k8s-config/configMap_deployment.yaml` 中的 `multi_server_instance_unique_label` 字段
 
@@ -226,8 +231,10 @@ kubectl logs -l app=k8s-mon-daemonset  -n kube-admin  -f
 - tag白名单可按需配置
 
 ### histogram数据问题
-- 暂时不提供基于 histogram的分位值，所以所有的_bucket指标已经被过滤掉了
-- 取而代之的是提供平均值，即： xx_sum/xx_count 举例 ` etcd请求平均延迟 = etcd_request_duration_seconds_sum /etcd_request_duration_seconds_count `
+- 提供基于 histogram的分位值，所有的_bucket指标已经被过滤掉了，提供分位值`quantile`  50 90 95 99
+- 线性插值法计算，和prometheus大致相同 :prometheus先算rate再算sum，k8s-mon是先算sum再算rate
+- 举例 `coredns_dns_request_duration_seconds_bucket --> coredns_dns_request_duration_seconds_quantile ` 代表coredns 解析平均延迟分位值
+- 同时提供平均值 举例 `coredns_dns_request_duration_seconds_bucket -->coredns_dns_request_duration_seconds_avg `
 
 
 # 原有cadvisor采集模式，即配置文件中collect_mode : cadvisor_plugin

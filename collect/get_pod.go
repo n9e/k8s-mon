@@ -41,6 +41,7 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 	kubeSchedulerIps := make([]string, 0)
 	kubeControllerIps := make([]string, 0)
 	apiServerIps := make([]string, 0)
+	etcdIps := make([]string, 0)
 	coreDnsIps := make([]string, 0)
 	kubeProxyIps := make([]string, 0)
 	if len(pods.Items) == 0 {
@@ -71,6 +72,14 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 
 		}
 
+		if p.Labels["tier"] == "control-plane" && p.Labels["component"] == "etcd" {
+			ip := p.Status.PodIP
+			if ip != "" {
+				etcdIps = append(etcdIps, p.Status.PodIP)
+			}
+
+		}
+
 		if p.Labels["k8s-app"] == "kube-dns" {
 			ip := p.Status.PodIP
 			if ip != "" {
@@ -93,6 +102,7 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 		"num_apiServerIps", len(apiServerIps),
 		"num_coreDnsIps", len(coreDnsIps),
 		"num_kubeProxyIps", len(kubeProxyIps),
+		"num_etcdIps", len(etcdIps),
 		"time_took_seconds", time.Since(start).Seconds(),
 	)
 	if len(coreDnsIps) > 0 {
@@ -100,6 +110,9 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 	}
 	if len(apiServerIps) > 0 {
 		dataMap.Map.Store(kconfig.FUNCNAME_APISERVER, apiServerIps)
+	}
+	if len(etcdIps) > 0 {
+		dataMap.Map.Store(kconfig.FUNCNAME_ETCD, etcdIps)
 	}
 	if len(kubeSchedulerIps) > 0 {
 		dataMap.Map.Store(kconfig.FUNCNAME_KUBESCHEDULER, kubeSchedulerIps)

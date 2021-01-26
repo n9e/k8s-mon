@@ -6,6 +6,7 @@ const (
 	METRIC_TYPE_GAUGE                   = "GAUGE"
 	METRIC_TYPE_COUNTER                 = "COUNTER"
 	FUNCNAME_APISERVER                  = "api-server"
+	FUNCNAME_ETCD                       = "etcd"
 	FUNCNAME_KUBESCHEDULER              = "kube-scheduler"
 	FUNCNAME_KUBECONTROLLER             = "kube-controller-manager"
 	FUNCNAME_COREDNS                    = "coredns"
