@@ -23,7 +23,7 @@
 - 服务组件采集时会添加`func_name`标签作为区分具体组件任务，类似`prometheus`的`job`标签 
 - 基础指标添加`node_ip` ,`node_name`作为宿主机标识标签
 - ksm指标没有nid的默认上报到服务节点`server_side_nid` ，例如`kube_node_status_allocatable_cpu_cores`这种共享指标
-- 服务组件采集预聚合了一些指标，包括 分位值、平均值、成功率，对应文档在 `metrics-detail/preaggregation.md`
+- **服务组件采集预聚合了一些指标，包括 分位值、平均值、成功率**，对应文档在 `metrics-detail/preaggregation.md` 
 - 服务组件采集了对应golang 进程的指标 包括 内存、goroutine等 ，对应文档在 `metrics-detail/process-resource.md`
 
 ## 采集内容说明
@@ -216,6 +216,8 @@ kubectl logs -l app=k8s-mon-daemonset  -n kube-admin  -f
 > 导入大盘图 
 ```shell script
 # 大盘图在 metrics-detail/夜莺大盘-xxxjson中
+# 将三个大盘json文件放到夜莺服务端机器 <n9e_home>/etc/screen 下
+# 刷新页面，在对应的节点选择导入内置大盘即可
 ``` 
 
 
