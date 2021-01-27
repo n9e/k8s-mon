@@ -1,5 +1,5 @@
 # 模式说明
-- 对应配置项为collect_mode **cadvisor_plugin|kubelet_agent|server_side 三选一**
+- 对应配置项为collect_mode `cadvisor_plugin | kubelet_agent | server_side` 三选一
 - 代码为同一套代码
 
 |  模式名称  |  部署运行方式 |  collect_mode配置   |  说明 | 
