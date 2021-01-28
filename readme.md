@@ -67,7 +67,14 @@ kubectl create secret generic etcd-certs --from-file=/etc/kubernetes/pki/etcd/he
 
 ```
 
-> 下载代码，打镜像
+> 直接使用公共源的镜像
+```shell script
+# 公共源使用阿里云的
+# registry.cn-beijing.aliyuncs.com/n9e/k8s-mon:v1
+```
+
+
+> 或者自己下载代码，打镜像
 
 ```shell script
 mkdir -pv $GOPATH/github.com/n9e 

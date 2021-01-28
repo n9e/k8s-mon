@@ -22,7 +22,8 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: k8s-mon
-          image: k8s-mon:v1
+          image:  registry.cn-beijing.aliyuncs.com/n9e/k8s-mon:v1
+          #image:  k8s-mon:v1
           command:
             - /opt/app/k8s-mon
             - --config.file=/etc/k8s-mon/k8s-mon.yml

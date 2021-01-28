@@ -131,11 +131,9 @@ func NewMetricFunc(nid string, newMetricName string, value float64, step int64, 
 
 func PercentComputeForKsm(mfenzi map[string]float64, mfenmu map[string]float64, nid string, newMetricName string, sameKeyName string, step int64, appendTags map[string]string, metricList []dataobj.MetricValue) []dataobj.MetricValue {
 
-	fmt.Println(newMetricName, mfenzi, mfenmu)
 	for sameKey, fenzi := range mfenzi {
 		fenmu, loaded := mfenmu[sameKey]
 		if !loaded {
-			fmt.Println("[not_loaded]", newMetricName, sameKey, fenzi)
 			continue
 		}
 		var percent float64
@@ -169,7 +167,6 @@ func PercentComputeForKsm(mfenzi map[string]float64, mfenmu map[string]float64, 
 		metricValue.TagsMap[sameKeyName] = sameKey
 
 		metricList = append(metricList, metricValue)
-		fmt.Println(newMetricName, metricValue, metricPercent)
 	}
 
 	return metricList

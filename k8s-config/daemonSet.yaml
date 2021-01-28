@@ -17,8 +17,9 @@ spec:
     spec:
       hostNetwork: true
       containers:
-        - image: k8s-mon:v1
-          name: k8s-mon
+        - name: k8s-mon
+          image:  registry.cn-beijing.aliyuncs.com/n9e/k8s-mon:v1
+          #image:  k8s-mon:v1
           imagePullPolicy: IfNotPresent
           command:
             - /opt/app/k8s-mon
