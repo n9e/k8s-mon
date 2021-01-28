@@ -58,7 +58,30 @@
 | etcd_debugging_snap_save_total_duration_seconds_avg |gauge|  dsnapshot save延迟平均值| |
 
 
-## 成功率
+
+## 节点资源汇总
+- 节点cpu请求核数 `sum(kube_pod_container_resource_requests_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"}) by (node)`
+- 节点cpu 请求率 `sum(kube_pod_container_resource_requests_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node) / sum(kube_node_status_allocatable_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node)`
+- 节点cpu限制 `sum(kube_pod_container_resource_limits_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"}) by (node)`
+- 节点cpu限制率 `sum(kube_pod_container_resource_limits_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node) / sum(kube_node_status_allocatable_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node)`
+
+- 节点内存请求 `sum(kube_pod_container_resource_requests_memory_bytes{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"}) by (node)`
+- 节点内存请求% `sum(kube_pod_container_resource_requests_memory_bytes{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node) / sum(kube_node_status_capacity_memory_bytes{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node)`
+- 节点内存限制 `sum(kube_pod_container_resource_limits_memory_bytes{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"}) by (node)`
+- 节点内存限制% `sum(kube_pod_container_resource_limits_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node) / sum(kube_node_status_allocatable_cpu_cores{origin_prometheus=~"$origin_prometheus",node=~"^$Node$"})by (node)`
+
+
+
+
+## 成功率/百分比
 |  指标名   | 类型|含义  | 说明 | 
 |  ---  | ---  | --- | --- | 
 | apiserver_request_successful_rate |gauge| apiserver请求成功率 | |
+| kube_node_pod_container_cpu_limits_value |gauge|节点cpu限制 | |
+| kube_node_pod_container_cpu_limits_percent|gauge|节点cpu限制率 | |
+| kube_node_pod_container_cpu_requests_value|gauge|节点cpu 请求| |
+| kube_node_pod_container_cpu_requests_percent|gauge|节点cpu 请求率 | `sum(kube_pod_container_resource_requests_cpu_cores)by (node) / sum(kube_node_status_allocatable_cpu_cores)by (node)`|
+| kube_node_pod_container_memory_requests_value|gauge|节点内存请求| |
+| kube_node_pod_container_memory_requests_percent|gauge|节点内存请求率| |
+| kube_node_pod_container_memory_limits_value|gauge|节点内存限制| |
+| kube_node_pod_container_memory_limits_percent|gauge|节点内存限制率| `sum(kube_pod_container_resource_limits_cpu_cores)by (node) / sum(kube_node_status_allocatable_cpu_cores)by (node)` |

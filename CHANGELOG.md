@@ -1,3 +1,9 @@
+## v2.0.4 / 2021-01-28
+* [FEATURE] 新增ksm指标计算节点cpu/mem 请求/限制率等指标
+* [BUGFIX] ksm启动不再sleep等待，因为push的瓶颈在transfer已经解决了
+
+
+
 ## v2.0.3 / 2021-01-27
 * [ENHANCEMENT] 修改大盘文件，测试导入内还在功能
 * [CHANGE] 完善readme

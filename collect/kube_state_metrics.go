@@ -149,6 +149,28 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 	// 整理label:
 
 	var metricList []dataobj.MetricValue
+	kube_pod_container_resource_requests_cpu_cores_m := make(map[string]float64)
+	kube_pod_container_resource_limits_cpu_cores_m := make(map[string]float64)
+	kube_node_status_allocatable_cpu_cores_m := make(map[string]float64)
+
+	kube_pod_container_resource_requests_memory_bytes_m := make(map[string]float64)
+	kube_pod_container_resource_limits_memory_bytes_m := make(map[string]float64)
+	kube_node_status_capacity_memory_bytes_m := make(map[string]float64)
+
+	kube_pod_info_m := make(map[string]float64)
+	kube_node_status_capacity_pods_m := make(map[string]float64)
+
+	kube_pod_container_resource_requests_cpu_cores := "kube_pod_container_resource_requests_cpu_cores"
+	kube_pod_container_resource_limits_cpu_cores := "kube_pod_container_resource_limits_cpu_cores"
+	kube_node_status_allocatable_cpu_cores := "kube_node_status_allocatable_cpu_cores"
+
+	kube_pod_container_resource_requests_memory_bytes := "kube_pod_container_resource_requests_memory_bytes"
+	kube_pod_container_resource_limits_memory_bytes := "kube_pod_container_resource_limits_memory_bytes"
+	kube_node_status_capacity_memory_bytes := "kube_node_status_capacity_memory_bytes"
+
+	kube_pod_info := "kube_pod_info"
+	kube_node_status_capacity_pods := "kube_node_status_capacity_pods"
+
 	for _, metric := range metrics {
 		// 去掉kube_<>_labels
 		//if _, loaded := rm[metric.Metric]; loaded {
@@ -170,6 +192,30 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 				delete(metric.TagsMap, k)
 			}
 		}
+		labelNode := metric.TagsMap["node"]
+		switch metric.Metric {
+
+		// cpu
+		case kube_pod_container_resource_requests_cpu_cores:
+			kube_pod_container_resource_requests_cpu_cores_m[labelNode] += metric.Value
+		case kube_pod_container_resource_limits_cpu_cores:
+			kube_pod_container_resource_limits_cpu_cores_m[labelNode] += metric.Value
+		case kube_node_status_allocatable_cpu_cores:
+			kube_node_status_allocatable_cpu_cores_m[labelNode] += metric.Value
+
+		//	mem
+		case kube_pod_container_resource_requests_memory_bytes:
+			kube_pod_container_resource_requests_memory_bytes_m[labelNode] += metric.Value
+		case kube_pod_container_resource_limits_memory_bytes:
+			kube_pod_container_resource_limits_memory_bytes_m[labelNode] += metric.Value
+		case kube_node_status_capacity_memory_bytes:
+			kube_node_status_capacity_memory_bytes_m[labelNode] += metric.Value
+		// pod num
+		case kube_pod_info:
+			kube_pod_info_m[labelNode] += metric.Value
+		case kube_node_status_capacity_pods:
+			kube_node_status_capacity_pods_m[labelNode] += metric.Value
+		}
 
 		if metric.CounterType == config.METRIC_TYPE_COUNTER {
 			metric.Metric = metric.Metric + config.COUNTER_TO_GAUGE_METRIC_NAME_SUFFIX
@@ -181,6 +227,20 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 		metricList = append(metricList, metric)
 
 	}
+
+	newtagsm := map[string]string{
+		cg.MultiFuncUniqueLabel: funcName,
+	}
+	// 计算百分比
+	// cpu
+	metricList = PercentComputeForKsm(kube_pod_container_resource_requests_cpu_cores_m, kube_node_status_allocatable_cpu_cores_m, cg.ServerSideNid, "kube_node_pod_container_cpu_requests", "node", cg.Step, newtagsm, metricList)
+	metricList = PercentComputeForKsm(kube_pod_container_resource_limits_cpu_cores_m, kube_node_status_allocatable_cpu_cores_m, cg.ServerSideNid, "kube_node_pod_container_cpu_limits", "node", cg.Step, newtagsm, metricList)
+	// mem
+	metricList = PercentComputeForKsm(kube_pod_container_resource_requests_memory_bytes_m, kube_node_status_capacity_memory_bytes_m, cg.ServerSideNid, "kube_node_pod_container_memory_requests", "node", cg.Step, newtagsm, metricList)
+	metricList = PercentComputeForKsm(kube_pod_container_resource_limits_memory_bytes_m, kube_node_status_capacity_memory_bytes_m, cg.ServerSideNid, "kube_node_pod_container_memory_limits", "node", cg.Step, newtagsm, metricList)
+	// pod
+	metricList = PercentComputeForKsm(kube_pod_info_m, kube_node_status_capacity_pods_m, cg.ServerSideNid, "kube_node_pod_num", "node", cg.Step, newtagsm, metricList)
+
 	level.Info(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds(), "metric_addr", cg.KubeStatsC.Addr)
 
 	go PushWork(cg.PushServerAddr, cg.TimeOutSeconds, metricList, logger, funcName)

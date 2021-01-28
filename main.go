@@ -266,8 +266,6 @@ func main() {
 		if sConfig.KubeStatsC != nil {
 			// kube-stats-metrics
 			g.Add(func() error {
-				// ksm指标多延迟启动
-				time.Sleep(2)
 				err := collect.CommonCollectTicker(sConfig, ctxAll, logger, collect.DoKubeStatsMetricsCollect, config.FUNCNAME_KUBESTATSMETRICS)
 				if err != nil {
 					level.Error(logger).Log("msg", "kube-stats-metrics collect-manager stopped")

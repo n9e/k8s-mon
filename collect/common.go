@@ -114,6 +114,67 @@ func checkFloatValidate(qu float64) (isValidate bool) {
 	return math.IsNaN(qu) || math.IsInf(qu, 1) || math.IsInf(qu, 1)
 }
 
+func NewMetricFunc(nid string, newMetricName string, value float64, step int64, appendTags map[string]string, metricList []dataobj.MetricValue) []dataobj.MetricValue {
+
+	metric := dataobj.MetricValue{}
+	metric.Nid = nid
+	metric.Metric = newMetricName
+	metric.Timestamp = time.Now().Unix()
+	metric.Step = step
+	metric.CounterType = config.METRIC_TYPE_GAUGE
+	metric.ValueUntyped = value
+	metric.Value = value
+	metric.TagsMap = appendTags
+	metricList = append(metricList, metric)
+	return metricList
+}
+
+func PercentComputeForKsm(mfenzi map[string]float64, mfenmu map[string]float64, nid string, newMetricName string, sameKeyName string, step int64, appendTags map[string]string, metricList []dataobj.MetricValue) []dataobj.MetricValue {
+
+	fmt.Println(newMetricName, mfenzi, mfenmu)
+	for sameKey, fenzi := range mfenzi {
+		fenmu, loaded := mfenmu[sameKey]
+		if !loaded {
+			fmt.Println("[not_loaded]", newMetricName, sameKey, fenzi)
+			continue
+		}
+		var percent float64
+		if fenmu == 0 {
+			percent = 0
+		} else {
+			percent = (fenzi / fenmu) * 100
+		}
+
+		metricPercent := dataobj.MetricValue{}
+		metricPercent.Nid = nid
+		metricPercent.Metric = newMetricName + "_percent"
+		metricPercent.Timestamp = time.Now().Unix()
+		metricPercent.Step = step
+		metricPercent.CounterType = config.METRIC_TYPE_GAUGE
+		metricPercent.ValueUntyped = percent
+		metricPercent.Value = percent
+		metricPercent.TagsMap = appendTags
+		metricPercent.TagsMap[sameKeyName] = sameKey
+		metricList = append(metricList, metricPercent)
+
+		metricValue := dataobj.MetricValue{}
+		metricValue.Nid = nid
+		metricValue.Metric = newMetricName + "_value"
+		metricValue.Timestamp = time.Now().Unix()
+		metricValue.Step = step
+		metricValue.CounterType = config.METRIC_TYPE_GAUGE
+		metricValue.ValueUntyped = fenzi
+		metricValue.Value = fenzi
+		metricValue.TagsMap = appendTags
+		metricValue.TagsMap[sameKeyName] = sameKey
+
+		metricList = append(metricList, metricValue)
+		fmt.Println(newMetricName, metricValue, metricPercent)
+	}
+
+	return metricList
+}
+
 func avgCompute(m map[string]float64, nid string, metricName string, step int64, appendTags map[string]string) (metricList []dataobj.MetricValue) {
 	sum := m["sum"]
 	count := m["count"]
@@ -170,6 +231,7 @@ func successfulRate(m map[string]float64, nid string, metricName string, step in
 	var (
 		suSum  float64 = 0
 		allSum float64 = 0
+		value  float64 = 0
 	)
 	for label, sum := range m {
 		if strings.HasPrefix(label, "2") || strings.HasPrefix(label, "3") {
@@ -178,7 +240,11 @@ func successfulRate(m map[string]float64, nid string, metricName string, step in
 		allSum += sum
 
 	}
-	value := suSum / allSum
+	if allSum == 0 {
+		value = 0
+	} else {
+		value = (suSum / allSum) * 100
+	}
 
 	metric := dataobj.MetricValue{}
 	metric.Nid = nid
