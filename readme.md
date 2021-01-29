@@ -8,6 +8,11 @@
 | 容器基础资源指标采集	|  k8s daemonset 部署在每一个node上|	kubelet_agent | 统称为新模式  (kubelet地址由对应metrics port listen地址决定) |  
 | 集中采集k8s服务组件	|k8s deployment 部署 |	server_side | 统称为新模式  |  
 
+# k8s-mon对比prometheus的优点
+- Histogram指标分位值预计算，节约存储、降低服务端压力(高基数指标往往来自histogram的海量bucket，同时除了算分位值以外的应用如分布情况又较少)
+- 基础资源指标预计算，counterTogauge 简化最终查看的表达式
+- 容器基础资源/k8s资源指标和夜莺树绑定
+
 
 # 新模式：部署在k8s中采集相关指标
 ## 原理说明
@@ -130,7 +135,7 @@ spec:
 -  修改  `k8s-config/configMap_deployment.yaml` 将 server_side_nid: 字段改为指定的服务组件监控叶子节点的nid
 - 举例：server_side_nid: "6"：代表6为k8s集群的服务树叶子节点，k8s控制平面的指标都会上报到这里
 
-## setup03 可以调整的配置
+## setup03 可以调整的配置(维持默认值时可跳过此段配置)
 > 如果不想采集某类指标可以去掉其配置
 - 举例：不想采集`apiserver`的指标
 - 则去掉/注释掉 `k8s-config/configMap_deployment.yaml`中 `apiserver`段即可
@@ -198,11 +203,11 @@ append_tags:
 
 ## setup04 启动服务 
 
-> 启动ksm服务(部署在kube-system namespace中)
+> 启动ksm服务(部署在kube-system namespace中 ，需要采集才启动)
 ```shell script
 kubectl apply -f k8s-config/kube-stats-metrics
 ```
-> 启动k8s-mon daemonset 和deployment (部署在kube-admin namespace中)
+> 启动k8s-mon daemonset 和deployment (部署在kube-admin namespace中，按需启动daemonset 和deployment)
 ```shell script
 kubectl apply -f k8s-config
 ```
@@ -223,7 +228,8 @@ kubectl logs -l app=k8s-mon-daemonset  -n kube-admin  -f
 > 导入大盘图 
 ```shell script
 # 大盘图在 metrics-detail/夜莺大盘-xxxjson中
-# 将三个大盘json文件放到夜莺服务端机器 <n9e_home>/etc/screen 下
+# 将三个大盘json文件放到夜莺服务端机器 <n9e_home>/etc/screen 下 
+# 或者 克隆夜莺3.5+代码，内置大盘图json在 etc/screen 下 
 # 刷新页面，在对应的节点选择导入内置大盘即可
 ``` 
 
