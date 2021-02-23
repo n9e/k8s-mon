@@ -52,8 +52,8 @@
 |  ----  | ----  | ---- |
 | 容器基础资源指标 kubelet-cadvisor	| kubelet 在node上listen分两种情况:<br>  listen 0.0.0.0 <br> listen机器内网ip |	默认为`k8s-mon`自动根据配置的`port`找到对应的地址 |
 | k8s资源指标	kube-stats-metrics| 默认为通过coredns 访问service `http://kube-state-metrics.kube-system:8080/metrics` | 同时支持指定  |
-| k8s服务组件指标(master侧) <br> apiserver <br> kube-controller-manager <br> kube-scheduler <br> etcd <br> coredns   <br>| 需要注意这些组件的部署方式 : <br> 部署在pod 中 <br> 以裸进程部署 |	`k8s-mon`默认认这些组件部署在pod中，通过getpod获取地址列表  |  
-| k8s服务组件指标(每node部署) kube-proxy <br> kubelet-node | 需要注意这些组件的部署方式 : <br> 部署在pod 中 <br> 以裸进程部署 |	`k8s-mon`默认认这些组件在每个node都可以以`ip:port/metrics`访问到，通过getnode获取internal ip ，对应的服务需要listen 内网ip或`0.0.0.0`|  
+| k8s服务组件指标(master侧) <br> apiserver <br> kube-controller-manager <br> kube-scheduler <br> etcd <br> coredns   <br>| 需要注意这些组件的部署方式 : <br> 部署在pod 中 <br> 以裸进程部署 |	`k8s-mon`默认认这些组件部署在pod中，通过**getpod**获取地址列表  |  
+| k8s服务组件指标(每node部署) kube-proxy <br> kubelet-node | 需要注意这些组件的部署方式 : <br> 部署在pod 中 <br> 以裸进程部署 |	`k8s-mon`默认认这些组件在每个node都可以以`ip:port/metrics`访问到，通过**getnode**获取internal ip ，对应的服务需要listen 内网ip或`0.0.0.0`|  
 | 业务指标(暂不支持)	| pod暴露的metrics接口|	- | -  |
 
 
@@ -134,6 +134,19 @@ spec:
 > 服务组件监控需要指定server_side_nid
 -  修改  `k8s-config/configMap_deployment.yaml` 将 server_side_nid: 字段改为指定的服务组件监控叶子节点的nid
 - 举例：server_side_nid: "6"：代表6为k8s集群的服务树叶子节点，k8s控制平面的指标都会上报到这里
+
+> k8s服务组件指标(master侧) 如果不是部署在pod中，需要指定采集地址
+- apiserver 、kube-scheduler、coredns、etcd等
+- `k8s-mon`默认认这些组件部署在pod中，通过**getpod**获取地址列表
+- 如果不是部署在pod中，需要指定采集地址(将user_specified设置为true，并指定addr，其余配置保持不变即可)，举例如下
+```yaml
+apiserver:
+  user_specified: true
+  addrs:
+    - "https://1.1.1.1:6443/metrics"
+    - "https://2.2.2.2:6443/metrics"
+```
+
 
 ## setup03 可以调整的配置(维持默认值时可跳过此段配置)
 > 如果不想采集某类指标可以去掉其配置
