@@ -213,6 +213,20 @@ append_tags:
 > 如需服务组件采集多实例时的特征标签
 - 修改`k8s-config/configMap_deployment.yaml` 中的 `multi_server_instance_unique_label` 字段
 
+> 调整日志级别
+- 修改`k8s-config/deployment.yaml` 中的 spec.containers.command 加上`--log.level=debug`即可看到debug日志，日志样例如下
+- 单项数据处理耗时
+```shell script
+level=debug ts=2021-02-24T15:47:31.810+08:00 caller=kube_controller_manager.go:180 msg=DoCollectSuccessfullyReadyToPush funcName=kube-controller-manager metrics_num=621 time_took_seconds=0.307592776
+```
+- 单项推送耗时
+```shell script
+level=debug ts=2021-02-24T15:47:31.863+08:00 caller=push.go:25 msg=PushWorkSuccess funcName=kube-controller-manager url=http://localhost:2080/api/collector/push metricsNum=621 time_took_seconds=0.053355322
+```
+- 获取pod耗时
+```shell script
+level=debug ts=2021-02-24T15:50:01.523+08:00 caller=get_pod.go:99 msg=server_pod_ips_result num_kubeSchedulerIps=1 num_kubeControllerIps=1 num_apiServerIps=1 num_coreDnsIps=2 num_kubeProxyIps=2 num_etcdIps=1 time_took_seconds=0.020384107
+``` 
 
 ## setup04 启动服务 
 

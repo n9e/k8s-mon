@@ -24,6 +24,7 @@ spec:
           command:
             - /opt/app/k8s-mon
             - --config.file=/etc/k8s-mon/k8s-mon.yml
+            #- --log.level=debug
           volumeMounts:
             - mountPath: /etc/k8s-mon
               name: config-volume

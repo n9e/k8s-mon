@@ -478,7 +478,7 @@ func AsyncCurlMetricsAndPush(controlChan chan int, c *config.CommonApiServerConf
 		ml = append(ml, m)
 
 	}
-	level.Info(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "seq", fmt.Sprintf("%d/%d", index, allNum), "metrics_num", len(ml), "time_took_seconds", time.Since(start).Seconds())
+	level.Debug(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "seq", fmt.Sprintf("%d/%d", index, allNum), "metrics_num", len(ml), "time_took_seconds", time.Since(start).Seconds())
 	go PushWork(pushServerAddr, tw, ml, logger, funcName)
 
 }

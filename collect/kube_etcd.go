@@ -156,6 +156,11 @@ func DoKubeEtcdCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap
 		}
 	}
 
+	if len(metricList) == 0 {
+		level.Error(logger).Log("msg", "CurlTlsMetricsResFinallyEmptyNotPush", "func_name", funcName)
+		return
+	}
+
 	newtagsm := map[string]string{
 		cg.MultiFuncUniqueLabel: funcName,
 	}
@@ -174,7 +179,7 @@ func DoKubeEtcdCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap
 		metricList = append(metricList, mm...)
 
 	}
-	level.Info(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds())
+	level.Debug(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds())
 	go PushWork(cg.PushServerAddr, cg.TimeOutSeconds, metricList, logger, funcName)
 
 }

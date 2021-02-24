@@ -29,7 +29,7 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 		level.Error(logger).Log("msg", "DoKubeStatsMetricsCollectEmptyMetricsResult")
 		return
 	}
-	level.Info(logger).Log("msg", "DoKubeStatsMetricsCollectCurlTlsMetricsApiRes", "resNum", len(metrics))
+	level.Debug(logger).Log("msg", "DoKubeStatsMetricsCollectCurlTlsMetricsApiRes", "resNum", len(metrics))
 
 	// kube_deployment_labels{deployment="test-server01-deployment", env="prod", instance="10.100.30.139:8080", job="business", label_app="test-server01",
 	//label_dtree_name="bive", label_dtree_nid="200", namespace="default", region="ap-south-1", service="k8s-mon"}
@@ -241,7 +241,7 @@ func DoKubeStatsMetricsCollect(cg *config.Config, logger log.Logger, funcName st
 	// pod
 	metricList = PercentComputeForKsm(kube_pod_info_m, kube_node_status_capacity_pods_m, cg.ServerSideNid, "kube_node_pod_num", "node", cg.Step, newtagsm, metricList)
 
-	level.Info(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds(), "metric_addr", cg.KubeStatsC.Addr)
+	level.Debug(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds(), "metric_addr", cg.KubeStatsC.Addr)
 
 	go PushWork(cg.PushServerAddr, cg.TimeOutSeconds, metricList, logger, funcName)
 }

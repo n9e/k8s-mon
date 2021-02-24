@@ -96,7 +96,7 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 
 		}
 	}
-	level.Info(logger).Log("msg", "server_pod_ips_result",
+	level.Debug(logger).Log("msg", "server_pod_ips_result",
 		"num_kubeSchedulerIps", len(kubeSchedulerIps),
 		"num_kubeControllerIps", len(kubeControllerIps),
 		"num_apiServerIps", len(apiServerIps),

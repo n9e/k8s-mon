@@ -416,7 +416,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 	// disk.bytes.used.percent = container_fs_usage_bytes / container_fs_limit_bytes
 	metricList = CommonComputeFunc(dataMapContainerFsUsage, dataMapContainerFsLimite, metricMapContainerFsUsage, metricList, "disk.bytes.used.percent")
 
-	level.Info(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds(), "metric_addr", cg.KubeletC.Addr)
+	level.Debug(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds(), "metric_addr", cg.KubeletC.Addr)
 
 	go PushWork(cg.PushServerAddr, cg.TimeOutSeconds, metricList, logger, funcName)
 }

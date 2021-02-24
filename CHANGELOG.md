@@ -1,5 +1,7 @@
 ## v2.0.5 / 2021-02-24
 * [BUGFIX] curl请求采集接口时，http.resp.status_code 非200直接报错返回，避免权限错误引起的解析错误的误导
+* [CHANGE] 多实例采集时，最终0结果改为不push
+* [CHANGE] 把一些常规info日志降级成debug，--log.level=debug可以调整日志级别
 
 ## v2.0.4 / 2021-01-28
 * [FEATURE] 新增ksm指标计算节点cpu/mem 请求/限制率等指标

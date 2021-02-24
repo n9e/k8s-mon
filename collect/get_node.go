@@ -49,7 +49,7 @@ func GetServerAddrByGetNode(logger log.Logger, dataMap *HistoryMap) {
 			}
 		}
 	}
-	level.Info(logger).Log("msg", "server_node_ips_result",
+	level.Debug(logger).Log("msg", "server_node_ips_result",
 		"num_nodeIps", len(nodeIps),
 		"time_took_seconds", time.Since(start).Seconds(),
 	)

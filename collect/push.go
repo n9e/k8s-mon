@@ -22,7 +22,7 @@ func PushWork(url string, tt int64, metricList []dataobj.MetricValue, logger log
 			return
 		}
 		if resp.StatusCode == 200 {
-			level.Info(logger).Log("msg", "PushWorkSuccess", "funcName", funcName, "url", url, "metricsNum", len(metricList), "time_took_seconds", time.Since(start).Seconds())
+			level.Debug(logger).Log("msg", "PushWorkSuccess", "funcName", funcName, "url", url, "metricsNum", len(metricList), "time_took_seconds", time.Since(start).Seconds())
 			return
 		}
 		defer resp.Body.Close()

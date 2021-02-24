@@ -53,7 +53,7 @@ func DoKubeletNodeOnNodeCollect(cg *config.Config, logger log.Logger, dataMap *H
 		ml = append(ml, m)
 
 	}
-	level.Info(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds(), "metric_addr", cg.KubeletNodeC.Addr)
+	level.Debug(logger).Log("msg", "DoCollectSuccessfullyReadyToPush", "funcName", funcName, "metrics_num", len(metricList), "time_took_seconds", time.Since(start).Seconds(), "metric_addr", cg.KubeletNodeC.Addr)
 
 	go PushWork(cg.PushServerAddr, cg.TimeOutSeconds, ml, logger, funcName)
 
