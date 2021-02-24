@@ -1,3 +1,6 @@
+## v2.0.5 / 2021-02-24
+* [BUGFIX] curl请求采集接口时，http.resp.status_code 非200直接报错返回，避免权限错误引起的解析错误的误导
+
 ## v2.0.4 / 2021-01-28
 * [FEATURE] 新增ksm指标计算节点cpu/mem 请求/限制率等指标
 * [BUGFIX] ksm启动不再sleep等待，因为push的瓶颈在transfer已经解决了

@@ -3,6 +3,7 @@ package collect
 import (
 	"context"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -592,6 +593,10 @@ func CurlTlsMetricsApi(logger log.Logger, funcName string, cg *config.CommonApiS
 	if err != nil {
 		level.Error(logger).Log("msg", "client request error", "funcName", funcName, "err", err)
 		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		level.Error(logger).Log("msg", "target_scrape_status_code_not_200_maybe_unauthorized", "funcName", funcName, "StatusCode", resp.StatusCode, "Status", resp.Status)
+		return nil, errors.New(fmt.Sprintf("server returned HTTP status %s", resp.Status))
 	}
 	defer func() {
 		io.Copy(ioutil.Discard, resp.Body)
