@@ -1,3 +1,7 @@
+## v2.0.7 / 2021-03-30
+* [BUGFIX] hold点/预聚合所使用的共享map`dataMap.Map`改为`go-cache` ，用来做gc，避免pod滚动后旧的数据没有删除导致内存不回收
+* [CHANGE] 编译时传入version，便于打印版本信息
+
 ## v2.0.5 / 2021-02-24
 * [BUGFIX] curl请求采集接口时，http.resp.status_code 非200直接报错返回，避免权限错误引起的解析错误的误导
 * [CHANGE] 多实例采集时，最终0结果改为不push

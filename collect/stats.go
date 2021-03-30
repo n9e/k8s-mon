@@ -1,11 +1,15 @@
 package collect
 
 import (
+	"github.com/patrickmn/go-cache"
 	"sync"
+	"time"
 )
 
 type HistoryMap struct {
-	Map sync.Map
+	//Map   sync.Map
+	Map *cache.Cache
+	//Cache *cache.Cache
 }
 
 type CounterStats struct {
@@ -19,8 +23,9 @@ type CommonCounterHis struct {
 }
 
 func NewHistoryMap() *HistoryMap {
-	m := sync.Map{}
-	return &HistoryMap{Map: m}
+	//m := sync.Map{}
+	c := cache.New(5*time.Minute, 10*time.Minute)
+	return &HistoryMap{Map: c}
 
 }
 

@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
+	"github.com/patrickmn/go-cache"
 	"io"
 	"io/ioutil"
 	"math"
@@ -205,15 +206,16 @@ func histogramDeltaWork(dataMap *HistoryMap, bucketM map[float64]float64, newtag
 
 		s.UpdateCounterStat(thisCounterStats)
 		mapKey := funcName + sepStr + newMetricName + sepStr + fmt.Sprintf("%f", up)
-		obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+		obj, loaded := dataMap.Map.Get(mapKey)
 		if !loaded {
+			dataMap.Map.Set(mapKey, s, cache.DefaultExpiration)
 			continue
 		}
 		dataHis := obj.(*CommonCounterHis)
 		dataHis.UpdateCounterStat(thisCounterStats)
 		dataRate := dataHis.DeltaCounter()
 
-		dataMap.Map.Store(mapKey, dataHis)
+		dataMap.Map.Set(mapKey, dataHis, cache.DefaultExpiration)
 		newM[up] = dataRate
 
 	}
@@ -433,7 +435,7 @@ func GetServerSideAddr(cg *config.CommonApiServerConfig, logger log.Logger, data
 
 		return
 	}
-	obj, loaded := dataMap.Map.Load(funcName)
+	obj, loaded := dataMap.Map.Get(funcName)
 	if !loaded {
 		level.Error(logger).Log("msg", "GetServerAddrByGetPodErrorNoValue", "funcName:", funcName)
 		return

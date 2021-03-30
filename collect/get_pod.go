@@ -2,6 +2,7 @@ package collect
 
 import (
 	"context"
+	"github.com/patrickmn/go-cache"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -106,22 +107,22 @@ func GetServerAddrByGetPod(logger log.Logger, dataMap *HistoryMap) {
 		"time_took_seconds", time.Since(start).Seconds(),
 	)
 	if len(coreDnsIps) > 0 {
-		dataMap.Map.Store(kconfig.FUNCNAME_COREDNS, coreDnsIps)
+		dataMap.Map.Set(kconfig.FUNCNAME_COREDNS, coreDnsIps, cache.DefaultExpiration)
 	}
 	if len(apiServerIps) > 0 {
-		dataMap.Map.Store(kconfig.FUNCNAME_APISERVER, apiServerIps)
+		dataMap.Map.Set(kconfig.FUNCNAME_APISERVER, apiServerIps, cache.DefaultExpiration)
 	}
 	if len(etcdIps) > 0 {
-		dataMap.Map.Store(kconfig.FUNCNAME_ETCD, etcdIps)
+		dataMap.Map.Set(kconfig.FUNCNAME_ETCD, etcdIps, cache.DefaultExpiration)
 	}
 	if len(kubeSchedulerIps) > 0 {
-		dataMap.Map.Store(kconfig.FUNCNAME_KUBESCHEDULER, kubeSchedulerIps)
+		dataMap.Map.Set(kconfig.FUNCNAME_KUBESCHEDULER, kubeSchedulerIps, cache.DefaultExpiration)
 	}
 	if len(kubeControllerIps) > 0 {
-		dataMap.Map.Store(kconfig.FUNCNAME_KUBECONTROLLER, kubeControllerIps)
+		dataMap.Map.Set(kconfig.FUNCNAME_KUBECONTROLLER, kubeControllerIps, cache.DefaultExpiration)
 	}
 	if len(kubeProxyIps) > 0 {
-		dataMap.Map.Store(kconfig.FUNCNAME_KUBEPROXY, kubeProxyIps)
+		dataMap.Map.Set(kconfig.FUNCNAME_KUBEPROXY, kubeProxyIps, cache.DefaultExpiration)
 	}
 
 }

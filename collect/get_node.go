@@ -2,6 +2,7 @@ package collect
 
 import (
 	"context"
+	"github.com/patrickmn/go-cache"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -54,7 +55,7 @@ func GetServerAddrByGetNode(logger log.Logger, dataMap *HistoryMap) {
 		"time_took_seconds", time.Since(start).Seconds(),
 	)
 	if len(nodeIps) > 0 {
-		dataMap.Map.Store(kconfig.FUNCNAME_KUBELET_NODE, nodeIps)
+		dataMap.Map.Set(kconfig.FUNCNAME_KUBELET_NODE, nodeIps, cache.DefaultExpiration)
 	}
 
 }

@@ -1,6 +1,7 @@
 package collect
 
 import (
+	"github.com/patrickmn/go-cache"
 	"strings"
 	"time"
 
@@ -198,10 +199,13 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 
 			s.UpdateCounterStat(thisCounterStats)
 
-			obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+			//obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+			obj, loaded := dataMap.Map.Get(mapKey)
 			if !loaded {
 				// 说明第一次
 				//level.Info(logger).Log("msg", "MapDataNotFound", "metric_name", "container_cpu_usage_seconds_total", "mapKey", mapKey)
+				dataMap.Map.Set(mapKey, s, cache.DefaultExpiration)
+
 				continue
 			} else {
 				//level.Info(logger).Log("msg", "MapDataGet", "metric_name", "container_cpu_usage_seconds_total", "mapKey", mapKey)
@@ -213,7 +217,8 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 				metric.Metric = "cpu.util"
 
 				metricMapContainerCpuUsage[cUniqueKey] = metric
-				dataMap.Map.Store(mapKey, dataHis)
+				dataMap.Map.Set(mapKey, dataHis, cache.DefaultExpiration)
+				//dataMap.Map.Store(mapKey, dataHis)
 				newM := metric
 				newM.Metric = "cpu.cores.occupy"
 				metricList = append(metricList, newM)
@@ -225,8 +230,9 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 
 			s.UpdateCounterStat(thisCounterStats)
 
-			obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+			obj, loaded := dataMap.Map.Get(mapKey)
 			if !loaded {
+				dataMap.Map.Set(mapKey, s, cache.DefaultExpiration)
 				continue
 			} else {
 				dataHis := obj.(*CommonCounterHis)
@@ -236,7 +242,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 				metric.Metric = "cpu.user"
 
 				metricMapContainerCpuUser[cUniqueKey] = metric
-				dataMap.Map.Store(mapKey, dataHis)
+				dataMap.Map.Set(mapKey, dataHis, cache.DefaultExpiration)
 				// 这里continue的目的是，metirc已经被改名为cpu.user做计算了
 				// 而且原始点也没有必要上报了，不需要下面在append 到list中
 				continue
@@ -247,10 +253,12 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 
 			s.UpdateCounterStat(thisCounterStats)
 
-			obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+			obj, loaded := dataMap.Map.Get(mapKey)
+
 			if !loaded {
 				// 说明第一次
 				//level.Info(logger).Log("msg", "MapDataNotFound", "metric_name", "container_cpu_system_seconds_total", "mapKey", mapKey)
+				dataMap.Map.Set(mapKey, s, cache.DefaultExpiration)
 				continue
 			} else {
 				//level.Info(logger).Log("msg", "MapDataGet", "metric_name", "container_cpu_system_seconds_total", "mapKey", mapKey)
@@ -260,7 +268,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 				dataMapContainerCpuSys[cUniqueKey] = dataRate
 				metric.Metric = "cpu.sys"
 				metricMapContainerCpuSys[cUniqueKey] = metric
-				dataMap.Map.Store(mapKey, dataHis)
+				dataMap.Map.Set(mapKey, dataHis, cache.DefaultExpiration)
 				continue
 			}
 
@@ -274,8 +282,9 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 
 			s.UpdateCounterStat(thisCounterStats)
 
-			obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+			obj, loaded := dataMap.Map.Get(mapKey)
 			if !loaded {
+				dataMap.Map.Set(mapKey, s, cache.DefaultExpiration)
 				continue
 			} else {
 				//level.Info(logger).Log("msg", "MapDataGet", "metric_name", "container_cpu_system_seconds_total", "mapKey", mapKey)
@@ -285,7 +294,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 				dataMapContainerCfsPeriods[cUniqueKey] = dataRate
 
 				metricMapContainerCfsPeriods[cUniqueKey] = metric
-				dataMap.Map.Store(mapKey, dataHis)
+				dataMap.Map.Set(mapKey, dataHis, cache.DefaultExpiration)
 				// rename
 				metric.Metric = "cpu.periods"
 
@@ -297,10 +306,11 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 
 			s.UpdateCounterStat(thisCounterStats)
 
-			obj, loaded := dataMap.Map.LoadOrStore(mapKey, s)
+			obj, loaded := dataMap.Map.Get(mapKey)
 			if !loaded {
 				// 说明第一次
 				//level.Info(logger).Log("msg", "MapDataNotFound", "metric_name", "container_cpu_system_seconds_total", "mapKey", mapKey)
+				dataMap.Map.Set(mapKey, s, cache.DefaultExpiration)
 				continue
 			} else {
 				//level.Info(logger).Log("msg", "MapDataGet", "metric_name", "container_cpu_system_seconds_total", "mapKey", mapKey)
@@ -310,7 +320,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 
 				dataMapContainerCfsThrottledPeriods[cUniqueKey] = dataRate
 				metricMapContainerCfsThrottledPeriods[cUniqueKey] = metric
-				dataMap.Map.Store(mapKey, dataHis)
+				dataMap.Map.Set(mapKey, dataHis, cache.DefaultExpiration)
 				// rename
 				metric.Metric = "cpu.throttled.periods"
 			}
