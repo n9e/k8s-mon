@@ -1,3 +1,10 @@
+## v2.1.0 / 2021-04-09
+* [FEATURE] k8s 1.20后续版本默认容器运行时采用`containerd`，k8s-mon获取容器tag时需要适配，默认采用docker-api，失败再尝试containerd-api
+* [CHANGE] pod runner改为`yauritux/busybox-curl` 提供curl命令方便排查问题
+* [CHANGE] 注意如果 不采集etcd，没有创建对应的证书(如k8s使用公有云托管的)，那么请将 deployment中挂载证书那几行注释掉，不然容器起不来
+* [CHANGE] 容器版本调整为 v2.1.0
+
+
 ## v2.0.7 / 2021-03-30
 * [BUGFIX] hold点/预聚合所使用的共享map`dataMap.Map`改为`go-cache` ，用来做gc，避免pod滚动后旧的数据没有删除导致内存不回收
 * [CHANGE] 编译时传入version，便于打印版本信息

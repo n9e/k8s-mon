@@ -30,11 +30,20 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 		level.Error(logger).Log("msg", "DoKubeletCollectEmptyMetricsResult")
 		return
 	}
-
+	/*
+		1. 优先使用docker-api
+		2. 出错了再用containerd-api尝试下
+		3. 1.20.1以上的k8s默认CONTAINER-RUNTIME 为containerd
+		4. 考虑多个节点可能一部分采用docker 一部分 containerd
+	*/
 	insM, err := getLabelMapByDockerSdk(cg.N9eNidLabelName)
 	if err != nil {
-		level.Error(logger).Log("msg", "DoKubeletCollect getInspectAll error", "err", err)
-		return
+		level.Error(logger).Log("msg", "DoKubeletCollect_getPodMap_by_dockerApi_error_try_containerd...", "err", err)
+		insM, err = getLabelMapByContainerdSdk(cg.N9eNidLabelName)
+		if err != nil {
+			level.Error(logger).Log("msg", "DoKubeletCollect_getPodMap_by_containerdApi_error", "err", err)
+			return
+		}
 	}
 
 	// tag 白名单

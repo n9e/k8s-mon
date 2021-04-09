@@ -18,8 +18,8 @@ spec:
       hostNetwork: true
       containers:
         - name: k8s-mon
-          image:  registry.cn-beijing.aliyuncs.com/n9e/k8s-mon:v1
-          #image:  k8s-mon:v1
+          image:  registry.cn-beijing.aliyuncs.com/n9e/k8s-mon:v2.1.0
+#          image:  k8s-mon:v1
           imagePullPolicy: IfNotPresent
           command:
             - /opt/app/k8s-mon
@@ -30,8 +30,15 @@ spec:
               name: config-volume
             - mountPath: /var/run
               name: docker-api
+              # docker inspect 需要方位 unix:///var/run/docker.sock
               # 赋予write权限，因为service account需要
               #readOnly: true
+
+            - mountPath: /run
+              name: containerd-api
+              readOnly: true
+              # 使用containerd作为运行时需要访问 /run/containerd/containerd.sock
+
           resources:
             requests:
               cpu: 100m
@@ -48,3 +55,6 @@ spec:
         - name: docker-api
           hostPath:
             path: /var/run
+        - name: containerd-api
+          hostPath:
+            path: /run

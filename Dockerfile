@@ -9,7 +9,8 @@ RUN go mod download
 COPY . .
 RUN  CGO_ENABLED=0 go build -o server  -ldflags "-X 'github.com/prometheus/common/version.BuildUser=root@n9e'  -X 'github.com/prometheus/common/version.BuildDate=`date`' -X 'github.com/prometheus/common/version.Version=`cat VERSION`'"
 #FROM scratch as runner
-FROM busybox  as runner
+#FROM busybox  as runner
+FROM yauritux/busybox-curl  as runner
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /usr/src/app/server /opt/app/k8s-mon
