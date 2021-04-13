@@ -145,6 +145,14 @@ func PercentComputeForKsm(mfenzi map[string]float64, mfenmu map[string]float64, 
 			percent = (fenzi / fenmu) * 100
 		}
 
+		metricPercentTagm := make(map[string]string)
+		metricValueTagm := make(map[string]string)
+
+		for k, v := range appendTags {
+			metricPercentTagm[k] = v
+			metricValueTagm[k] = v
+		}
+
 		metricPercent := dataobj.MetricValue{}
 		metricPercent.Nid = nid
 		metricPercent.Metric = newMetricName + "_percent"
@@ -153,7 +161,7 @@ func PercentComputeForKsm(mfenzi map[string]float64, mfenmu map[string]float64, 
 		metricPercent.CounterType = config.METRIC_TYPE_GAUGE
 		metricPercent.ValueUntyped = percent
 		metricPercent.Value = percent
-		metricPercent.TagsMap = appendTags
+		metricPercent.TagsMap = metricPercentTagm
 		metricPercent.TagsMap[sameKeyName] = sameKey
 		metricList = append(metricList, metricPercent)
 
@@ -165,7 +173,7 @@ func PercentComputeForKsm(mfenzi map[string]float64, mfenmu map[string]float64, 
 		metricValue.CounterType = config.METRIC_TYPE_GAUGE
 		metricValue.ValueUntyped = fenzi
 		metricValue.Value = fenzi
-		metricValue.TagsMap = appendTags
+		metricValue.TagsMap = metricValueTagm
 		metricValue.TagsMap[sameKeyName] = sameKey
 
 		metricList = append(metricList, metricValue)

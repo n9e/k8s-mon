@@ -68,7 +68,8 @@
 # 创建namespace kube-admin
 kubectl create ns kube-admin
 # 创建访问etcd所需secret，在master上执行（不采集etcd则不需要）
-# 注意如果 不采集etcd，没有创建对应的证书(如k8s使用公有云托管的)，那么请将 deployment中挂载证书那几行注释掉，不然容器起不来
+# 注意如果 不采集etcd，没有创建对应的证书(如k8s使用公有云托管的)，默认 deployment中挂载证书那几行是注释掉的，开启etcd采集再打开
+# etcd证书信息依据自己环境替换即可
 kubectl create secret generic etcd-certs --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key --from-file=/etc/kubernetes/pki/etcd/ca.crt -n kube-admin
 
 ```

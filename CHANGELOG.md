@@ -1,3 +1,9 @@
+## v2.2.0 / 2021-04-13
+* [BUGFIX] 解决`ksm` pod数量等预聚合指标 tag匹配错误bug，现象是相关曲线如`cpu限制核数`跳动变化
+* [CHANGE] 修改deployment配置为默认不采集etcd，如需采集，请将 deployment中挂载证书那几行注释去掉
+* [CHANGE] 容器版本调整为 v2.2.0
+
+
 ## v2.1.0 / 2021-04-09
 * [FEATURE] k8s 1.20后续版本默认容器运行时采用`containerd`，k8s-mon获取容器tag时需要适配，默认采用docker-api，失败再尝试containerd-api
 * [CHANGE] pod runner改为`yauritux/busybox-curl` 提供curl命令方便排查问题

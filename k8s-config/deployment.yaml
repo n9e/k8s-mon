@@ -22,7 +22,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: k8s-mon
-          image:  registry.cn-beijing.aliyuncs.com/n9e/k8s-mon::v2.1.0
+          image:  registry.cn-beijing.aliyuncs.com/n9e/k8s-mon:v2.2.0
           #image:  k8s-mon:v1
           command:
             - /opt/app/k8s-mon
@@ -31,9 +31,10 @@ spec:
           volumeMounts:
             - mountPath: /etc/k8s-mon
               name: config-volume
-            - mountPath: "/etc/secrets/etcd-certs"
-              name: secret-volume
-              readOnly: true
+            # 开启etcd采集再开启此段配置
+            #- mountPath: "/etc/secrets/etcd-certs"
+            #  name: secret-volume
+            #  readOnly: true
 
           ports:
             - containerPort: 9901
@@ -50,6 +51,7 @@ spec:
           configMap:
             defaultMode: 420
             name: k8s-mon-deployment
-        - name: secret-volume
-          secret:
-            secretName: etcd-certs
+        # 开启etcd采集再开启此段配置
+        #- name: secret-volume
+        #  secret:
+        #    secretName: etcd-certs
