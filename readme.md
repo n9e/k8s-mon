@@ -1,3 +1,7 @@
+# 问题排查
+- 遇到问题请先看，[问题排查文档](./问题排查.md)  ，其中汇总了场景问题和排查思路。
+
+
 # 模式说明
 - 对应配置项为collect_mode `cadvisor_plugin | kubelet_agent | server_side` 三选一
 - 代码为同一套代码
