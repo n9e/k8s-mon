@@ -231,6 +231,7 @@ func DoKubeletCollect(cg *config.Config, logger log.Logger, dataMap *HistoryMap,
 				newM := metric
 				newM.Metric = "cpu.cores.occupy"
 				metricList = append(metricList, newM)
+				continue
 			}
 
 		case "container_cpu_user_seconds_total":
